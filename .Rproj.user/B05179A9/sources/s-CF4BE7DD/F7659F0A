@@ -1,0 +1,26 @@
+{
+    "id": "F7659F0A",
+    "path": "~/UCPH/Efficiency and Benchmarking/Rpackage_DEA/hyperbolicDEA/R/hyperbolicDEA.R",
+    "project_path": "R/hyperbolicDEA.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1657717821917.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "27,0",
+        "scrollLine": "37"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1657719679,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1657719679317,
+    "read_only": false,
+    "read_only_alternatives": []
+}
