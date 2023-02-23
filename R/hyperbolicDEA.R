@@ -14,6 +14,7 @@
 #' @param SUPEREFF Variable indicating whether superefficiencies shall be estimated
 #' @param NONDISC_IN Vector containing indices of the input matrix that are non-discretionary variables
 #' @param NONDISC_OUT Vector containing indices of the output matrix that are non-discretionary variables
+#' @param PARALLEL Integer of amount of cores that should be used for estimation (Check availability of computer)
 #'
 #' @return A list object containing efficiency scores, lambdas, and potentially slacks and
 #' binding parameters in the weight restrictions (mus)
@@ -25,10 +26,13 @@
 #' @import dplyr
 #' @import nloptr
 #' @import lpSolveAPI
+#' @import foreach
+#' @import doParallel
 
 hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
                            ACCURACY = 1.0e-10, XREF = NULL, YREF = NULL,
-                           SUPEREFF = F, NONDISC_IN = NULL, NONDISC_OUT = NULL){
+                           SUPEREFF = F, NONDISC_IN = NULL, NONDISC_OUT = NULL,
+                           PARALLEL = 1){
 
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
     stop("X must be a numeric vector, matrix or dataframe")
@@ -42,7 +46,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
   if (!is.matrix(Y)){
     Y <- as.matrix(Y)
   }
-  if (!is.null(WR) & !is.matrix(WR)){
+  if (!is.null(WR)){
     WR <- as.matrix(WR)
     if (ncol(WR) != ncol(X) + ncol(Y)){
       stop("WR must be a matrix of weight restrictions in standard form,
@@ -131,8 +135,15 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
 
   results <- list(eff = eff, lambdas = lambdas, mus = mus)
 
-  # start of the main loop for non-linear solver
-  for (i in 1:nrow(X)){
+  #register multicore estimation if adjusted
+  if (PARALLEL > 1){
+    registerDoParallel(PARALLEL)
+  }
+
+  # start of the main loop for non-linear solver (suppress warning of
+  # parallel backend not registerd if core =1 )
+  suppressWarnings(
+  result_list <- foreach (i = 1:nrow(X), .packages = "nloptr") %dopar% {
 
     # Change XREF YREF to check superefficiency
     if (SUPEREFF){
@@ -350,8 +361,12 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
                  eval_jac_g_eq = eval_jac_g_eq,
                  opts=opts)
 
+  }
+  ) # end of suppress warnings
+
+  for (i in 1:nrow(X)){
     if (!is.null(WR)){
-      results$mus[i,] <- res$solution[(nrow(X)+2):(nrow(X)+1+nrow(WR))]
+      results$mus[i,] <- result_list[[i]]$solution[(nrow(X)+2):(nrow(X)+1+nrow(WR))]
     }
 
     # fdh estimation
@@ -385,16 +400,17 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         stop("FDH cannot be combined with weight restrictions")
       }
     } else{
-      eff <- c(eff, res$solution[nrow(XREF)+1])
+      eff <- c(eff, result_list[[i]]$solution[nrow(XREF)+1])
       if (SUPEREFF){
-        lambda <- res$solution[1:nrow(XREF)]
+        lambda <- result_list[[i]]$solution[1:nrow(XREF)]
         lambda <- append(lambda, NA, after = i-1)
         results$lambdas[i,] <- lambda
       } else{
-        results$lambdas[i,] <- res$solution[1:nrow(XREF)]
+        results$lambdas[i,] <- result_list[[i]]$solution[1:nrow(XREF)]
       }
     }
   }
+
   results$eff <- eff
 
   ####### Slack estimation if True ######

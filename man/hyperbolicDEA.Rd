@@ -13,7 +13,10 @@ hyperbolicDEA(
   ACCURACY = 1e-10,
   XREF = NULL,
   YREF = NULL,
-  SUPEREFF = F
+  SUPEREFF = F,
+  NONDISC_IN = NULL,
+  NONDISC_OUT = NULL,
+  PARALLEL = 1
 )
 }
 \arguments{
@@ -34,6 +37,12 @@ hyperbolicDEA(
 \item{YREF}{Matrix or dataframe with firms defining the technology as rows and outputs as columns}
 
 \item{SUPEREFF}{Variable indicating whether superefficiencies shall be estimated}
+
+\item{NONDISC_IN}{Vector containing indices of the input matrix that are non-discretionary variables}
+
+\item{NONDISC_OUT}{Vector containing indices of the output matrix that are non-discretionary variables}
+
+\item{PARALLEL}{Integer of amount of cores that should be used for estimation (Check availability of computer)}
 }
 \value{
 A list object containing efficiency scores, lambdas, and potentially slacks and
@@ -46,5 +55,5 @@ estimation of slacks, superefficiency scores, and more.
 \examples{
 X <- c(1,1,2,4,1.5,2,4,3)
 Y <- c(1,2,4,4,0.5,2.5,3.5,4)
-dea.hyperbolic(X,Y,RTS="vrs", SUPEREFF = F)
+hyperbolicDEA(X,Y,RTS="vrs", SUPEREFF = F)
 }

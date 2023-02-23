@@ -1,2 +1,2 @@
 exportPattern("^[[:alpha:]]+")
-import(nloptr, dplyr, lpSolveAPI)
+import(nloptr, dplyr, lpSolveAPI, foreach, doParallel)
