@@ -50,6 +50,9 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     }
   }
 
+  # Set Matrix colnames to NULL to avoid issues with rbind function
+  colnames(X,Y,WR)
+
   possible_rts <- c("crs", "vrs", "ndrs", "nirs", "fdh")
 
   # Variable for if condition in SLACK estimation
@@ -59,9 +62,13 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
   # and referring X and Y to XREF and YREF as well as matrix definition
   if (is.null(XREF)&&is.null(YREF)){
 
-    scaled_values <- scale(cbind.data.frame(X,Y), center = F)
-    Y <- as.matrix(scaled_values[,(ncol(X)+1):(ncol(X)+ncol(Y))])
-    X <- as.matrix(scaled_values[,1:ncol(X)])
+    scaled_values <- scale(rbind(cbind(Y,X),WR), center = F)
+    Y <- as.matrix(scaled_values[1:nrow(X),1:ncol(Y)])
+    X <- as.matrix(scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
+    if (!is.null(WR)){
+      WR <- matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(WR)),1:(ncol(X)+ncol(Y))],
+                   ncol = (ncol(X)+ncol(Y)))
+    }
 
     XREF <- X
     YREF <- Y
@@ -86,11 +93,15 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
 
     # equal scaling of XREF YREF and Y and X
     XREF_YREF <- T
-    scaled_values <- scale(cbind.data.frame(rbind(X,XREF),rbind(Y,YREF)) , center = F)
-    Y <- as.matrix(scaled_values[1:nrow(X),(ncol(X)+1):(ncol(X)+ncol(Y))])
-    X <-  as.matrix(scaled_values[1:nrow(X),1:ncol(X)])
-    YREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),(ncol(X)+1):(ncol(X)+ncol(Y))])
-    XREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(X)])
+    scaled_values <- scale(rbind(cbind(rbind(Y,YREF),rbind(X,XREF)), WR) , center = F)
+    Y <- as.matrix(scaled_values[1:nrow(X),1:ncol(Y)])
+    X <-  as.matrix(scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
+    YREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(Y)])
+    XREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:(ncol(Y)+1):(ncol(X)+ncol(Y))])
+    if (!is.null(WR)){
+      WR <- matrix(scaled_values[(nrow(X)+nrow(XREF)+1):(nrow(X)+nrow(XREF)+nrow(WR)),
+                                 1:(ncol(X)+ncol(Y))], ncol = (ncol(X)+ncol(Y)))
+    }
   }
 
   if (!(RTS %in% possible_rts)){
