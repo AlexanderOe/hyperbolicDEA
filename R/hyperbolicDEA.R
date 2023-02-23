@@ -50,9 +50,6 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     }
   }
 
-  # Set Matrix colnames to NULL to avoid issues with rbind function
-  colnames(X,Y,WR)
-
   possible_rts <- c("crs", "vrs", "ndrs", "nirs", "fdh")
 
   # Variable for if condition in SLACK estimation
@@ -97,7 +94,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     Y <- as.matrix(scaled_values[1:nrow(X),1:ncol(Y)])
     X <-  as.matrix(scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
     YREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(Y)])
-    XREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:(ncol(Y)+1):(ncol(X)+ncol(Y))])
+    XREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),(ncol(Y)+1):(ncol(X)+ncol(Y))])
     if (!is.null(WR)){
       WR <- matrix(scaled_values[(nrow(X)+nrow(XREF)+1):(nrow(X)+nrow(XREF)+nrow(WR)),
                                  1:(ncol(X)+ncol(Y))], ncol = (ncol(X)+ncol(Y)))
@@ -327,7 +324,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
       controls0 <- c(rep(0, nrow(XREF)), 1, c(rep(0, nrow(WR))))
       controls0[i] <- 1
       lb <- c(rep(0, nrow(XREF)), 0, c(rep(0, nrow(WR))))
-      ub <- c(rep(Inf, nrow(XREF)), 1, c(rep(Inf, nrow(WR))))
+      ub <- c(rep(Inf, nrow(XREF)), Inf, c(rep(Inf, nrow(WR))))
     }
 
 
