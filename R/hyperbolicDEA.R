@@ -364,6 +364,11 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
   }
   ) # end of suppress warnings
 
+  # Deregister parallel core
+  if (PARALLEL > 1){
+    registerDoSEQ()
+  }
+
   for (i in 1:nrow(X)){
     if (!is.null(WR)){
       results$mus[i,] <- result_list[[i]]$solution[(nrow(X)+2):(nrow(X)+1+nrow(WR))]
@@ -400,12 +405,13 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         stop("FDH cannot be combined with weight restrictions")
       }
     } else{
-      eff <- c(eff, result_list[[i]]$solution[nrow(XREF)+1])
       if (SUPEREFF){
-        lambda <- result_list[[i]]$solution[1:nrow(XREF)]
+        eff <- c(eff, result_list[[i]]$solution[nrow(XREF)])
+        lambda <- result_list[[i]]$solution[1:(nrow(XREF)-1)]
         lambda <- append(lambda, NA, after = i-1)
         results$lambdas[i,] <- lambda
       } else{
+        eff <- c(eff, result_list[[i]]$solution[nrow(XREF)+1])
         results$lambdas[i,] <- result_list[[i]]$solution[1:nrow(XREF)]
       }
     }
@@ -419,18 +425,18 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     # unscale for slack estimation
     if (XREF_YREF){
       non_scaled_values <- t(apply(scaled_values, 1, function(r)r*attr(scaled_values,'scaled:scale')))
-      Y <- as.matrix(non_scaled_values[1:nrow(X),(ncol(X)+1):(ncol(X)+ncol(Y))])
-      X <-  as.matrix(non_scaled_values[1:nrow(X),1:ncol(X)])
-      YREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),(ncol(X)+1):(ncol(X)+ncol(Y))])
-      XREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(X)])
+      X <- as.matrix(non_scaled_values[1:nrow(X),(ncol(X)+1):(ncol(X)+ncol(Y))])
+      Y <-  as.matrix(non_scaled_values[1:nrow(X),1:ncol(X)])
+      XREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),(ncol(X)+1):(ncol(X)+ncol(Y))])
+      YREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(X)])
 
     } else{
       # YREF and XREF are the same as X and Y if not specified
       non_scaled_values <- t(apply(scaled_values, 1, function(r)r*attr(scaled_values,'scaled:scale')))
-      Y <- as.matrix(non_scaled_values[,(ncol(X)+1):(ncol(X)+ncol(Y))])
-      X <-  as.matrix(non_scaled_values[,1:ncol(X)])
-      YREF <- as.matrix(non_scaled_values[,(ncol(X)+1):(ncol(X)+ncol(Y))])
-      XREF <-  as.matrix(non_scaled_values[,1:ncol(X)])
+      X <- as.matrix(non_scaled_values[,(ncol(X)+1):(ncol(X)+ncol(Y))])
+      Y <-  as.matrix(non_scaled_values[,1:ncol(X)])
+      XREF <- as.matrix(non_scaled_values[,(ncol(X)+1):(ncol(X)+ncol(Y))])
+      YREF <-  as.matrix(non_scaled_values[,1:ncol(X)])
     }
 
     results_slack <- c()
