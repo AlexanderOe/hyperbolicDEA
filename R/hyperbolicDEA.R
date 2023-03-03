@@ -47,10 +47,9 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     Y <- as.matrix(Y)
   }
   if (!is.null(WR)){
-    WR <- as.matrix(WR)
     if (ncol(WR) != ncol(X) + ncol(Y)){
       stop("WR must be a matrix of weight restrictions in standard form,
-           ncol(WR) = ncol(X) + ncol(Y)")
+           ncol(WR) = ncol(Y) + ncol(X)")
     }
   }
 
@@ -328,12 +327,10 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
 
     if (is.null(WR)){
       controls0 <- c(rep(0, nrow(XREF)), 1)
-      controls0[i] <- 1
       lb <- c(rep(0, nrow(XREF)), 0)
       ub <- c(rep(Inf, nrow(XREF)), Inf)
     } else{
       controls0 <- c(rep(0, nrow(XREF)), 1, c(rep(0, nrow(WR))))
-      controls0[i] <- 1
       lb <- c(rep(0, nrow(XREF)), 0, c(rep(0, nrow(WR))))
       ub <- c(rep(Inf, nrow(XREF)), Inf, c(rep(Inf, nrow(WR))))
     }
