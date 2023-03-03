@@ -327,10 +327,16 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
 
     if (is.null(WR)){
       controls0 <- c(rep(0, nrow(XREF)), 1)
+      if (!XREF_YREF){
+        controls0[i] <- 1
+      }
       lb <- c(rep(0, nrow(XREF)), 0)
       ub <- c(rep(Inf, nrow(XREF)), Inf)
     } else{
       controls0 <- c(rep(0, nrow(XREF)), 1, c(rep(0, nrow(WR))))
+      if (!XREF_YREF){
+        controls0[i] <- 1
+      }
       lb <- c(rep(0, nrow(XREF)), 0, c(rep(0, nrow(WR))))
       ub <- c(rep(Inf, nrow(XREF)), Inf, c(rep(Inf, nrow(WR))))
     }
