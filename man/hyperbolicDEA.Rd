@@ -50,7 +50,8 @@ binding parameters in the weight restrictions (mus)
 }
 \description{
 Hyperbolic DEA implementation including weight restrictions,
-estimation of slacks, superefficiency scores, and more.
+exogenous variables, external referencing, estimation of slacks and
+superefficiency scores
 }
 \examples{
 X <- c(1,1,2,4,1.5,2,4,3)

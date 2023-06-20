@@ -1,7 +1,8 @@
 #' @title hyperbolicDEA
 #'
 #' @description Hyperbolic DEA implementation including weight restrictions,
-#' estimation of slacks, superefficiency scores, and more.
+#' exogenous variables, external referencing, estimation of slacks and
+#' superefficiency scores
 #'
 #' @param X Matrix or dataframe with DMUS as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
@@ -152,7 +153,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
       YREF <- as.matrix(YREF[-i,])
     }
 
-    # controls is a vector containing all lambdas, G,
+    # controls is a vector containing all lambdas, G (Eff score),
     # and all the mu's (one mu per row of WR)
     eval_f <- function(controls){
       return(controls[nrow(XREF)+1])
@@ -374,7 +375,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
 
   for (i in 1:nrow(X)){
     if (!is.null(WR)){
-      results$mus[i,] <- result_list[[i]]$solution[(nrow(X)+2):(nrow(X)+1+nrow(WR))]
+      results$mus[i,] <- result_list[[i]]$solution[(nrow(XREF)+2):(nrow(XREF)+1+nrow(WR))]
     }
 
     # fdh estimation
