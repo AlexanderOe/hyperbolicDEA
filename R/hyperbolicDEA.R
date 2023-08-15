@@ -61,6 +61,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
 
   # scaling adjustments
   # and referring X and Y to XREF and YREF as well as matrix definition
+  # test here line 64
   if (is.null(XREF)&&is.null(YREF)){
 
     scaled_values <- scale(rbind(cbind(Y,X),WR), center = F)
