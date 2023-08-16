@@ -33,7 +33,7 @@
 hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
                            ACCURACY = 1.0e-10, XREF = NULL, YREF = NULL,
                            SUPEREFF = F, NONDISC_IN = NULL, NONDISC_OUT = NULL,
-                           PARALLEL = 1){
+                           PARALLEL = 1, ALPHA = 0.5){
 
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
     stop("X must be a numeric vector, matrix or dataframe")
@@ -169,7 +169,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
       eval_g_ineq <- function(controls){
         constr <- c()
         for (j in c(1:ncol(XREF))[DISC_IN]){
-          constraint_x <- controls[1:nrow(XREF)]%*%XREF[,j] - controls[nrow(XREF)+1]*X[i,j]
+          constraint_x <- controls[1:nrow(XREF)]%*%XREF[,j] - controls[nrow(XREF)+1]^(1-ALPHA)*X[i,j]
           constr <- c(constr, constraint_x)
         }
         for (j in c(1:ncol(XREF))[NONDISC_IN]){
@@ -177,7 +177,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           constr <- c(constr, constraint_x)
         }
         for (k in c(1:ncol(YREF))[DISC_OUT]){
-          constraint_y <- -(controls[1:nrow(XREF)])%*%YREF[,k] + (1/controls[nrow(XREF)+1])*Y[i,k]
+          constraint_y <- -(controls[1:nrow(XREF)])%*%YREF[,k] + (1/controls[nrow(XREF)+1]^ALPHA)*Y[i,k]
           constr <- c(constr, constraint_y)
         }
         for (k in c(1:ncol(YREF))[NONDISC_OUT]){
@@ -199,7 +199,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         jacobian_X <- c()
         jacobian_Y <- c()
         for (j in c(1:ncol(XREF))[DISC_IN]){
-          jacobian_X_j <- c(XREF[,j],-X[i,j])
+          jacobian_X_j <- c(XREF[,j],-(1-ALPHA)*controls[nrow(XREF)+1]^(-ALPHA)*X[i,j])
           jacobian_X <- rbind(jacobian_X, jacobian_X_j)
         }
         for (j in c(1:ncol(XREF))[NONDISC_IN]){
@@ -207,7 +207,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           jacobian_X <- rbind(jacobian_X, jacobian_X_j)
         }
         for (k in c(1:ncol(YREF))[DISC_OUT]){
-          jacobian_Y_k <- c(-YREF[,k], -(controls[nrow(XREF)+1]^(-2))*Y[i,k])
+          jacobian_Y_k <- c(-YREF[,k], -ALPHA*controls[nrow(XREF)+1]^(-ALPHA-1))*Y[i,k]
           jacobian_Y <- rbind(jacobian_Y, jacobian_Y_k)
         }
         for (k in c(1:ncol(YREF))[NONDISC_OUT]){
