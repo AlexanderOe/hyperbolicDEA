@@ -6,7 +6,7 @@ test_that("VRS", {
   X <- c(2,3,3,8,9)
   Y <- c(5,5,6,7,10)
   eff_comparison <- Benchmarking::dea(X, Y, RTS="vrs",ORIENTATION="graph")$eff
-  eff <- hyperbolicDEA(X, Y, RTS = "vrs")$eff^0.5
+  eff <- hyperbolicDEA(X, Y, RTS = "vrs")$eff
 
   expect_equal(round(eff,3), round(eff_comparison,3))
 })
@@ -15,7 +15,7 @@ test_that("CRS", {
   X <- c(2,3,3,8,9)
   Y <- c(5,5,6,7,10)
   eff_comparison <- Benchmarking::dea(X, Y, RTS="crs",ORIENTATION="graph")$eff
-  eff <- hyperbolicDEA(X, Y, RTS = "crs")$eff^0.5
+  eff <- hyperbolicDEA(X, Y, RTS = "crs")$eff
 
   expect_equal(round(eff,3), round(eff_comparison,3))
 })
@@ -30,7 +30,7 @@ test_that("Scaling", {
   Y <- cbind.data.frame(Y1,Y2)
 
   eff_comparison <- Benchmarking::dea(X, Y, RTS="vrs",ORIENTATION="graph")$eff
-  eff <- hyperbolicDEA(X, Y, RTS = "vrs")$eff^0.5
+  eff <- hyperbolicDEA(X, Y, RTS = "vrs")$eff
 
   expect_equal(round(eff,3), round(eff_comparison,3))
 })
