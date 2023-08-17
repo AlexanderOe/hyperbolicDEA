@@ -16,7 +16,8 @@ hyperbolicDEA(
   SUPEREFF = F,
   NONDISC_IN = NULL,
   NONDISC_OUT = NULL,
-  PARALLEL = 1
+  PARALLEL = 1,
+  ALPHA = 0.5
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ hyperbolicDEA(
 \item{NONDISC_OUT}{Vector containing indices of the output matrix that are non-discretionary variables}
 
 \item{PARALLEL}{Integer of amount of cores that should be used for estimation (Check availability of computer)}
+
+\item{ALPHA}{ALPHA can be choosen between [0,1]. It indicates the relative weights given to the distance function to both outputs and inputs when approaching the frontier.}
 }
 \value{
 A list object containing efficiency scores, lambdas, and potentially slacks and

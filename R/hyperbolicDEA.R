@@ -16,6 +16,8 @@
 #' @param NONDISC_IN Vector containing indices of the input matrix that are non-discretionary variables
 #' @param NONDISC_OUT Vector containing indices of the output matrix that are non-discretionary variables
 #' @param PARALLEL Integer of amount of cores that should be used for estimation (Check availability of computer)
+#' @param ALPHA ALPHA can be choosen between [0,1]. It indicates the relative weights given to the distance function to both outputs and inputs when approaching the frontier.
+#'
 #'
 #' @return A list object containing efficiency scores, lambdas, and potentially slacks and
 #' binding parameters in the weight restrictions (mus)
