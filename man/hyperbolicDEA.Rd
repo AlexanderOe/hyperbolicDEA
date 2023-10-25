@@ -27,7 +27,7 @@ hyperbolicDEA(
 
 \item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs", "ndrs", "nirs", "fdh"}
 
-\item{WR}{Matrix with one row per homogenous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)}
+\item{WR}{Matrix with one row per homogeneous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)}
 
 \item{SLACK}{Variable indicating whether an additional estimation of slacks shall be performed}
 
@@ -45,7 +45,11 @@ hyperbolicDEA(
 
 \item{PARALLEL}{Integer of amount of cores that should be used for estimation (Check availability of computer)}
 
-\item{ALPHA}{ALPHA can be choosen between [0,1]. It indicates the relative weights given to the distance function to both outputs and inputs when approaching the frontier.}
+\item{ALPHA}{ALPHA can be chosen between [0,1]. It indicates the relative weights given to the distance function to
+both outputs and inputs when approaching the frontier. More weight on the input orientation is set by alpha < 0.5. Here,
+the input efficiency score is estimated in the package. To receive the corresponding output efficiency score, estimate: e^((1-alpha)/alpha).
+Vice versa for an output weighted model alpha > 0.5. The output efficiency is given and the input efficiency can
+be recovered with: e^(alpha/(1-alpha))}
 }
 \value{
 A list object containing efficiency scores, lambdas, and potentially slacks and
@@ -53,8 +57,10 @@ binding parameters in the weight restrictions (mus)
 }
 \description{
 Hyperbolic DEA implementation including weight restrictions,
-exogenous variables, external referencing, estimation of slacks and
-superefficiency scores
+non-discretionary variables, gerenralized distance function, external referencing, estimation of slacks and
+superefficiency scores. The mathematical and theoretical foundations of the code are presented in the paper
+"Data Envelopment Analysis and Hyperbolic Efficiency Measures: Extending Applications and Possiblities
+for Between-Group Comparisons" (2023) by Alexander Öttl, Mette Asmild, and Daniel Gulde.
 }
 \examples{
 X <- c(1,1,2,4,1.5,2,4,3)

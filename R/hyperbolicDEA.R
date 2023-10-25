@@ -1,13 +1,15 @@
 #' @title hyperbolicDEA
 #'
 #' @description Hyperbolic DEA implementation including weight restrictions,
-#' exogenous variables, external referencing, estimation of slacks and
-#' superefficiency scores
+#' non-discretionary variables, gerenralized distance function, external referencing, estimation of slacks and
+#' superefficiency scores. The mathematical and theoretical foundations of the code are presented in the paper
+#' "Data Envelopment Analysis and Hyperbolic Efficiency Measures: Extending Applications and Possiblities
+#' for Between-Group Comparisons" (2023) by Alexander Öttl, Mette Asmild, and Daniel Gulde.
 #'
 #' @param X Matrix or dataframe with DMUS as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs", "ndrs", "nirs", "fdh"
-#' @param WR Matrix with one row per homogenous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)
+#' @param WR Matrix with one row per homogeneous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)
 #' @param SLACK Variable indicating whether an additional estimation of slacks shall be performed
 #' @param ACCURACY Accuracy value for non-linear programmer
 #' @param XREF Matrix or dataframe with firms defining the technology as rows and inputs as columns
@@ -16,7 +18,11 @@
 #' @param NONDISC_IN Vector containing indices of the input matrix that are non-discretionary variables
 #' @param NONDISC_OUT Vector containing indices of the output matrix that are non-discretionary variables
 #' @param PARALLEL Integer of amount of cores that should be used for estimation (Check availability of computer)
-#' @param ALPHA ALPHA can be choosen between [0,1]. It indicates the relative weights given to the distance function to both outputs and inputs when approaching the frontier.
+#' @param ALPHA ALPHA can be chosen between [0,1]. It indicates the relative weights given to the distance function to
+#' both outputs and inputs when approaching the frontier. More weight on the input orientation is set by alpha < 0.5. Here,
+#' the input efficiency score is estimated in the package. To receive the corresponding output efficiency score, estimate: e^((1-alpha)/alpha).
+#' Vice versa for an output weighted model alpha > 0.5. The output efficiency is given and the input efficiency can
+#' be recovered with: e^(alpha/(1-alpha))
 #'
 #'
 #' @return A list object containing efficiency scores, lambdas, and potentially slacks and
