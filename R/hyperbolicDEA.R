@@ -35,6 +35,7 @@
 #' @import dplyr
 #' @import nloptr
 #' @import lpSolveAPI
+#' @import foreach
 #' @import doParallel
 
 hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,

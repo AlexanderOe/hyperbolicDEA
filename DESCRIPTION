@@ -7,7 +7,7 @@ Authors@R: c(
     person("Daniel", "Gulde", email = "daguldre@gmail.com", role = "aut"))
 Maintainer: Alexander Öttl <alexoettl34@gmail.com>
 Description: Hyperbolic DEA implementation including weight restrictions, estimation of slacks, superefficiency scores, and more.
-Imports: dplyr, nloptr, lpSolveAPI
+Imports: dplyr, nloptr, lpSolveAPI, foreach, doParallel
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
