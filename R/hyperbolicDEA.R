@@ -425,7 +425,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         lambda <- append(lambda, NA, after = i-1)
         results$lambdas[i,] <- lambda
       } else{
-        eff <- c(eff, ifelse(ALPHA >= 0.5, result_list[[i]]$solution[nrow(XREF)+1]^ALPHA,
+        eff <- c(eff, ifelse(ALPHA <= 0.5, result_list[[i]]$solution[nrow(XREF)+1]^ALPHA,
                              result_list[[i]]$solution[nrow(XREF)+1]^(ALPHA^(1 - ALPHA))))
         results$lambdas[i,] <- result_list[[i]]$solution[1:nrow(XREF)]
       }
