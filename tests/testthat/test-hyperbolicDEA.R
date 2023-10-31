@@ -48,3 +48,23 @@ test_that("Weight Restrictions", {
 
   expect_equal(eff_WR, eff_NIRS)
 })
+
+test_that("ALPHA=1 output orientation", {
+  X <- c(1,2,4,5,6,7)
+  Y <- c(1,3,2,5,4,6)
+
+  eff_alpha<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 1)$eff
+  eff <- 1/dea(X, Y, RTS = "vrs", ORIENTATION = "out")$eff
+
+  expect_equal(round(eff_alpha,3), round(eff,3))
+})
+
+test_that("ALPHA=0 input orientation", {
+  X <- c(1,2,4,5,6,7)
+  Y <- c(1,3,2,5,4,6)
+
+  eff_alpha<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 0)$eff
+  eff <- dea(X, Y, RTS = "vrs", ORIENTATION = "in")$eff
+
+  expect_equal(round(eff_alpha,3), round(eff,3))
+})
