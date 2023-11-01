@@ -505,7 +505,6 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         set.bounds(lprec, upper = c(rep(1,nrow(XREF))), columns = c(1:nrow(XREF)))
       }
       set.bounds(lprec, lower = c(rep(0,nrow(XREF)+ncol(X)+ncol(Y))), columns = c(1:(nrow(XREF)+ncol(X)+ncol(Y))))
-      set.bounds(lprec, lower = c(rep(0,ncol(X)+ncol(Y))), columns = c((nrow(XREF)+1):(nrow(XREF)+ncol(X)+ncol(Y))))
       set.bounds(lprec, upper = c(rep(Inf,ncol(X)+ncol(Y))), columns = c((nrow(XREF)+1):(nrow(XREF)+ncol(X)+ncol(Y))))
 
 
