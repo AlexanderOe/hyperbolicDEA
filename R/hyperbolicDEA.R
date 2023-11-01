@@ -130,6 +130,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
 
   # Setting up result matrices and vectors
   eff <- c()
+  theta <- c()
 
   lambdas <- matrix(NA, nrow = nrow(X), ncol = nrow(XREF))
   colnames(lambdas) <- paste("L", 1:nrow(XREF), sep = "")
@@ -428,6 +429,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         eff <- c(eff, ifelse(ALPHA >= 0.5, result_list[[i]]$solution[nrow(XREF)+1]^ALPHA,
                              result_list[[i]]$solution[nrow(XREF)+1]^(1 - ALPHA)))
         results$lambdas[i,] <- result_list[[i]]$solution[1:nrow(XREF)]
+        # For Slack estimation Theta
+        theta <- c(theta, result_list[[i]]$solution[nrow(XREF)+1])
       }
     }
   }
@@ -440,18 +443,18 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     # unscale for slack estimation
     if (XREF_YREF){
       non_scaled_values <- t(apply(scaled_values, 1, function(r)r*attr(scaled_values,'scaled:scale')))
-      X <- as.matrix(non_scaled_values[1:nrow(X),(ncol(X)+1):(ncol(X)+ncol(Y))])
-      Y <-  as.matrix(non_scaled_values[1:nrow(X),1:ncol(X)])
-      XREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),(ncol(X)+1):(ncol(X)+ncol(Y))])
-      YREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(X)])
+      X <- as.matrix(non_scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
+      Y <-  as.matrix(non_scaled_values[1:nrow(X),1:ncol(Y)])
+      XREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),(ncol(Y)+1):(ncol(X)+ncol(Y))])
+      YREF <- as.matrix(non_scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(Y)])
 
     } else{
       # YREF and XREF are the same as X and Y if not specified
       non_scaled_values <- t(apply(scaled_values, 1, function(r)r*attr(scaled_values,'scaled:scale')))
-      X <- as.matrix(non_scaled_values[,(ncol(X)+1):(ncol(X)+ncol(Y))])
-      Y <-  as.matrix(non_scaled_values[,1:ncol(X)])
-      XREF <- as.matrix(non_scaled_values[,(ncol(X)+1):(ncol(X)+ncol(Y))])
-      YREF <-  as.matrix(non_scaled_values[,1:ncol(X)])
+      X <- as.matrix(non_scaled_values[,(ncol(Y)+1):(ncol(X)+ncol(Y))])
+      Y <-  as.matrix(non_scaled_values[,1:ncol(Y)])
+      XREF <- as.matrix(non_scaled_values[,(ncol(Y)+1):(ncol(X)+ncol(Y))])
+      YREF <-  as.matrix(non_scaled_values[,1:ncol(Y)])
     }
 
     results_slack <- c()
@@ -484,23 +487,34 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         set.column(lprec, nrow(XREF)+ncol(X)+j, column)
       }
 
-      # Change to maximazation problem
+      # Change to maximization problem
       lp.control(lprec, sense="max")
 
       # set objective function only slack decision variables
       set.objfn(lprec, c(rep(0,nrow(XREF)),rep(1,ncol(X)+ncol(Y))))
 
-      # set the constraint type
-      set.constr.type(lprec, c(rep("=", ncol(X)+ncol(Y)+1)))
+      # set the constraint type lambda different for CRS and VRS
+      if (RTS == "crs"){
+        set.constr.type(lprec, c(rep("=", ncol(X)+ncol(Y)),">="))
+      } else{
+        set.constr.type(lprec, c(rep("=", ncol(X)+ncol(Y)+1)))
+      }
 
-      # set bounds 0 to 1 for lambdas and 0 to inf for slack
+      # set bounds 0 to 1 for lambdas in VRS and 0 to inf for slack
+      if (RTS == "vrs"){
+        set.bounds(lprec, upper = c(rep(1,nrow(XREF))), columns = c(1:nrow(XREF)))
+      }
       set.bounds(lprec, lower = c(rep(0,nrow(XREF)+ncol(X)+ncol(Y))), columns = c(1:(nrow(XREF)+ncol(X)+ncol(Y))))
-      set.bounds(lprec, upper = c(rep(1,nrow(XREF))), columns = c(1:nrow(XREF)))
+      set.bounds(lprec, lower = c(rep(0,ncol(X)+ncol(Y))), columns = c((nrow(XREF)+1):(nrow(XREF)+ncol(X)+ncol(Y))))
       set.bounds(lprec, upper = c(rep(Inf,ncol(X)+ncol(Y))), columns = c((nrow(XREF)+1):(nrow(XREF)+ncol(X)+ncol(Y))))
 
 
       # Solve the problem
-      set.rhs(lprec, c(X[i,]*results$eff[i],Y[i,]/results$eff[i],1))
+      if (RTS == "crs"){
+        set.rhs(lprec, c(X[i,]*(theta[i]^(1-ALPHA)),Y[i,]/(theta[i]^ALPHA),0))
+      } else{
+        set.rhs(lprec, c(X[i,]*(theta[i]^(1-ALPHA)),Y[i,]/(theta[i]^ALPHA),1))
+      }
       solve(lprec)
       slacks <- get.variables(lprec)
       results_slack <- rbind(results_slack,slacks)

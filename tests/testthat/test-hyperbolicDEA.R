@@ -68,3 +68,16 @@ test_that("ALPHA=0 input orientation", {
 
   expect_equal(round(eff_alpha,3), round(eff,3))
 })
+
+test_that("SLACK", {
+  X <- c(1,1,2,3)
+  Y <- c(1,2,4,3)
+
+  effHyp<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 1, SLACK = T)
+  eff <- dea(X, Y, RTS = "vrs", ORIENTATION = "out",SLACK = T)
+
+  logic_vec <- rowSums(round(effHyp$slack,3)) > 0
+  logic_vec <- unname(logic_vec)
+
+  expect_equal(logic_vec, eff$slack)
+})
