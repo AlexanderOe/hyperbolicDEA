@@ -403,8 +403,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           lambdas <- c(rep(0, nrow(XREF)))
           lambdas[j] <- 1
           rhs <- c(lambdas%*%XREF, lambdas%*%YREF)
-          eff_X <- rhs[c(1:ncol(XREF))[DISC_IN]]/X[i,DISC_IN]
-          eff_Y <- 1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]])*Y[i, DISC_OUT]
+          eff_X <- rhs[c(1:ncol(XREF))[DISC_IN]^(1-ALPHA)]/X[i,DISC_IN]
+          eff_Y <- 1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]^ALPHA])*Y[i, DISC_OUT]
           peer_list <- c(peer_list, j)
           eff_list <- c(eff_list, max(c(eff_X, eff_Y)))
         }

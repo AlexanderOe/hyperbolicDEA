@@ -81,3 +81,13 @@ test_that("SLACK", {
 
   expect_equal(logic_vec, eff$slack)
 })
+
+test_that("fdh", {
+  X <- c(1,2,4,5,6,7)
+  Y <- c(1,3,2,5,4,6)
+
+  effHyp<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 1)
+  eff <- dea(X, Y, RTS = "fdh", ORIENTATION = "out")
+
+  expect_equal(round(effHyp$eff, 3), c(1,1,0.667,1,0.833,1))
+})
