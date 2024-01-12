@@ -403,10 +403,10 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           lambdas <- c(rep(0, nrow(XREF)))
           lambdas[j] <- 1
           rhs <- c(lambdas%*%XREF, lambdas%*%YREF)
-          eff_X <- rhs[c(1:ncol(XREF))[DISC_IN]^(1-ALPHA)]/X[i,DISC_IN]
-          eff_Y <- 1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]^ALPHA])*Y[i, DISC_OUT]
+          eff_X <- ifelse(any(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]]<Y[i, DISC_OUT]),1,(rhs[c(1:ncol(XREF))[DISC_IN]]/X[i, DISC_IN])^(1/(1-ALPHA)))
+          eff_Y <- ifelse(any(rhs[c(1:ncol(XREF))[DISC_IN]]>X[i, DISC_IN]), 1, (1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]])*Y[i, DISC_OUT])^(1/ALPHA))
           peer_list <- c(peer_list, j)
-          eff_list <- c(eff_list, max(c(eff_X, eff_Y)))
+          eff_list <- c(eff_list, ifelse(eff_Y>=eff_X, eff_Y^(ALPHA), eff_X^(1-ALPHA)))
         }
         possible_eff <- data.frame(peer_list, eff_list)
         eff_fdh <- min(possible_eff$eff_list)
@@ -436,6 +436,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
   }
 
   results$eff <- eff
+
 
   ####### Slack estimation if True ######
   if (SLACK){

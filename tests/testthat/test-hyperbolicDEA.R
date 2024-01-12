@@ -86,8 +86,18 @@ test_that("fdh", {
   X <- c(1,2,4,5,6,7)
   Y <- c(1,3,2,5,4,6)
 
-  effHyp<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 1)
-  eff <- dea(X, Y, RTS = "fdh", ORIENTATION = "out")
+  # Hyperbolic Orientation
+  effHyp<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 0.5)
+  eff <- dea(X, Y, RTS = "fdh", ORIENTATION = "graph")
+  expect_equal(round(effHyp$eff, 3), round(eff$eff, 3))
 
-  expect_equal(round(effHyp$eff, 3), c(1,1,0.667,1,0.833,1))
+  # Output Orientation
+  effHyp_out<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 1)
+  eff_out <- dea(X, Y, RTS = "fdh", ORIENTATION = "out")
+  expect_equal(round(effHyp_out$eff, 3), round(1/eff_out$eff, 3))
+
+  # Output Orientation
+  effHyp_in<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 0)
+  eff_in <- dea(X, Y, RTS = "fdh", ORIENTATION = "in")
+  expect_equal(round(effHyp_in$eff, 3), round(eff_in$eff, 3))
 })
