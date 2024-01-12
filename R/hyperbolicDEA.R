@@ -407,6 +407,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           eff_Y <- ifelse(any(rhs[c(1:ncol(XREF))[DISC_IN]]>X[i, DISC_IN]), 1, max((1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]])*Y[i, DISC_OUT])^(1/ALPHA)))
           peer_list <- c(peer_list, j)
           eff_list <- c(eff_list, ifelse(eff_Y>=eff_X, eff_Y^(ALPHA), eff_X^(1-ALPHA)))
+          theta_list <- c(eff_list, ifelse(eff_Y>=eff_X, eff_Y, eff_X))
         }
         possible_eff <- data.frame(peer_list, eff_list)
         eff_fdh <- min(possible_eff$eff_list)
@@ -415,6 +416,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         lambdas[peer] <- 1
         eff <- c(eff, eff_fdh)
         results$lambdas[i,] <- lambdas
+        theta <- c(theta, max(theta_list))
       } else{
         stop("FDH cannot be combined with weight restrictions")
       }
