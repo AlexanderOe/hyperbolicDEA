@@ -416,7 +416,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         lambdas[peer] <- 1
         eff <- c(eff, eff_fdh)
         results$lambdas[i,] <- lambdas
-        theta <- c(theta, max(theta_list))
+        theta <- c(theta, min(theta_list))
       } else{
         stop("FDH cannot be combined with weight restrictions")
       }

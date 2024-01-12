@@ -101,17 +101,4 @@ test_that("fdh", {
   eff_in <- dea(X, Y, RTS = "fdh", ORIENTATION = "in")
   expect_equal(round(effHyp_in$eff, 3), round(eff_in$eff, 3))
 
-  # Multidimensional
-  X1 <- c(1,2,4,7,6,7)
-  Y1 <- c(1,3,2,5,4,6)
-  X2 <- c(1,3,4,5,6,4)
-  Y2 <- c(1,2,4,4,4,5)
-
-  X <- cbind.data.frame(X1,X2)
-  Y <- cbind.data.frame(Y1,Y2)
-
-  effHyp_mlt <- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 1, SLACK = T)
-  eff_mlt <- dea(X, Y, RTS = "fdh", ORIENTATION = "out")
-  print(effHyp_mlt$slack)
-  #expect_equal(round(effHyp_mlt$eff, 3), round(1/eff_mlt$eff, 3))
 })
