@@ -403,10 +403,20 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           lambdas <- c(rep(0, nrow(XREF)))
           lambdas[j] <- 1
           rhs <- c(lambdas%*%XREF, lambdas%*%YREF)
+          # The following line has a ifelse condition to select only DMUs that
+          # are worse of for comparison. Hence, for input efficiency we are only
+          # interested in DMUs that have similar or lower output levels. For output
+          # efficiency we are only interested in DMUs that have similar or higher
+          # input levels. If the conditions is not fullfilled we set the score to 1
+          # with efficiency by default. Then we only use the max efficiency score
+          # of the DMUs. Hence the output or input the DMU is relatively best at.
           eff_X <- ifelse(any(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]]<Y[i, DISC_OUT]),1,max((rhs[c(1:ncol(XREF))[DISC_IN]]/X[i, DISC_IN])^(1/(1-ALPHA))))
           eff_Y <- ifelse(any(rhs[c(1:ncol(XREF))[DISC_IN]]>X[i, DISC_IN]), 1, max((1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]])*Y[i, DISC_OUT])^(1/ALPHA)))
           peer_list <- c(peer_list, j)
+          # Depending on which efficiency is better output or input efficiency is
+          # selected. This depends also on the respective alpha value
           eff_list <- c(eff_list, ifelse(eff_Y>=eff_X, eff_Y^(ALPHA), eff_X^(1-ALPHA)))
+          # Theta is stored for slack estimations.
           theta_list <- c(eff_list, ifelse(eff_Y>=eff_X, eff_Y, eff_X))
         }
         possible_eff <- data.frame(peer_list, eff_list)
