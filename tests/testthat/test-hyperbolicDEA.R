@@ -101,4 +101,13 @@ test_that("fdh", {
   eff_in <- dea(X, Y, RTS = "fdh", ORIENTATION = "in")
   expect_equal(round(effHyp_in$eff, 3), round(eff_in$eff, 3))
 
+  # Multidimensional
+  x <- c(1,1,1,1)
+  y <- matrix(c(1,1,3,4,
+                1,3,2,1), ncol = 2)
+  est_hyp <- hyperbolicDEA(x, y, RTS = "fdh", ALPHA = 1)
+  est <- dea(x, y, RTS = "fdh", ORIENTATION = "out")
+
+  expect_equal(round(est_hyp$eff, 3), round(1/est$eff, 3))
+
 })
