@@ -411,13 +411,13 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           # with efficiency by default. Then we only use the max efficiency score
           # of the DMUs. Hence the output or input the DMU is relatively best at.
           if (ALPHA != 1) {
-            eff_X <- ifelse(any(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]]<Y[i, DISC_OUT]),1,max((rhs[c(1:ncol(XREF))[DISC_IN]]/X[i, DISC_IN])^(1/(1-ALPHA))))
+            eff_X <- ifelse(any(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]]<Y[i, DISC_OUT]),1,max((rhs[c(1:ncol(XREF))[DISC_IN]]/X[i, DISC_IN])^(1/(1-ALPHA)), na.rm = T))
           } else{
             eff_X <- 0
           }
 
           if (ALPHA != 0) {
-            eff_Y <- ifelse(any(rhs[c(1:ncol(XREF))[DISC_IN]]>X[i, DISC_IN]), 1, max((1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]])*Y[i, DISC_OUT])^(1/ALPHA)))
+            eff_Y <- ifelse(any(rhs[c(1:ncol(XREF))[DISC_IN]]>X[i, DISC_IN]), 1, max((1/(rhs[c((ncol(XREF)+1):(ncol(XREF)+ncol(YREF)))[DISC_OUT]])*Y[i, DISC_OUT])^(1/ALPHA), na.rm = T))
           } else{
             eff_Y <- 0
           }
