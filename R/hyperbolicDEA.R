@@ -430,7 +430,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         }
         possible_eff <- data.frame(peer_list, eff_list)
         eff_fdh <- min(possible_eff$eff_list)
-        peer <- possible_eff[possible_eff$eff_list == eff_fdh, "peer_list"]
+        peer <- which(possible_eff[, "eff_list"] == eff_fdh)[1]
         lambdas <- c(rep(0, nrow(XREF)))
         lambdas[peer] <- 1
         eff <- c(eff, eff_fdh)

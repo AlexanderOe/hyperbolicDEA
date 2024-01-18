@@ -110,4 +110,13 @@ test_that("fdh", {
 
   expect_equal(round(est_hyp$eff, 3), round(1/est$eff, 3))
 
+
+  # Testing Lambdas
+  X <- matrix(c(1,2,4,5,7,7), ncol=1)
+  Y <- as.matrix(c(1,3,2,5,4,6))
+
+  effHyp <- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 1)
+  effBO <- dea(X, Y, RTS = "fdh", ORIENTATION = "out")
+  expect_equal(all.equal(effHyp$lambdas, effBO$lambda, check.attributes = FALSE), TRUE)
+
 })
