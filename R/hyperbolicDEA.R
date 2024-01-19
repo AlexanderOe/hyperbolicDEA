@@ -128,6 +128,16 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     DISC_OUT <- DISC_OUT[-NONDISC_OUT]
   }
 
+  # Using NONDISC to adjust for linear orientations (ALPHA = 0 or 1)
+  if (ALPHA == 0 && !(RTS=="fdh")){
+    DISC_OUT <- NULL
+    NONDISC_OUT <- 1:ncol(YREF)
+  }
+  if (ALPHA == 1 && !(RTS=="fdh")){
+    DISC_IN <- NULL
+    NONDISC_IN <- 1:ncol(XREF)
+  }
+
   # Setting up result matrices and vectors
   eff <- c()
   theta <- c()
