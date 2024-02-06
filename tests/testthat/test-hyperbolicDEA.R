@@ -120,3 +120,25 @@ test_that("fdh", {
   expect_equal(all.equal(effHyp$lambdas, effBO$lambda, check.attributes = FALSE), TRUE)
 
 })
+
+
+test_that("multiple weight restricitons", {
+
+  X1 <- c(4,4,5,6,7)
+  X2 <- c(2,4,3,7,2)
+  Y <- c(1,1,1,1,1)
+
+  WR <- matrix(c(1/2,1), nrow = 1)
+  WR_hyp <- matrix(c(0,-1,2,
+                     0,1,-1),
+                   ncol = 3, nrow = 2, byrow = TRUE)
+
+  BO_crs_WR <- dea.dual(cbind(X1, X2), Y, RTS = "crs", ORIENTATION = "in", DUAL = WR)
+
+  hyp_crs_WR <- hyperbolicDEA(cbind(X1, X2), Y, RTS = "crs", ALPHA = 0, WR = WR_hyp)
+  expect_equal(round(BO_crs_WR$eff, 3), round(hyp_crs_WR$eff, 3))
+
+
+})
+
+
