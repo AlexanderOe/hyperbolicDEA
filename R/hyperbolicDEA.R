@@ -24,25 +24,28 @@
 #' Vice versa for an output weighted model alpha > 0.5. The output efficiency is given and the input efficiency can
 #' be recovered with: e^(alpha/(1-alpha))
 #'
-#'
 #' @return A list object containing efficiency scores, lambdas, and potentially slacks and
 #' binding parameters in the weight restrictions (mus)
+#'
 #' @examples
 #' X <- c(1,1,2,4,1.5,2,4,3)
 #' Y <- c(1,2,4,4,0.5,2.5,3.5,4)
 #' hyperbolicDEA(X,Y,RTS="vrs", SUPEREFF = F)
-#' @export hyperbolicDEA
+#'
 #' @import dplyr
 #' @import nloptr
 #' @import lpSolveAPI
 #' @import foreach
 #' @import doParallel
+#'
+#' @export
 
 hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
                            ACCURACY = 1.0e-10, XREF = NULL, YREF = NULL,
                            SUPEREFF = F, NONDISC_IN = NULL, NONDISC_OUT = NULL,
                            PARALLEL = 1, ALPHA = 0.5){
 
+  # Check arguments given by user
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
     stop("X must be a numeric vector, matrix or dataframe")
   }
@@ -63,13 +66,16 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
   }
 
   possible_rts <- c("crs", "vrs", "ndrs", "nirs", "fdh")
+  RTS <- tolower(RTS)
+  if (!(RTS %in% possible_rts)){
+    stop("Unknown scale of returns:", RTS)
+  }
 
   # Variable for if condition in SLACK estimation
   XREF_YREF <- F
 
   # scaling adjustments
   # and referring X and Y to XREF and YREF as well as matrix definition
-  # test here line 64
   if (is.null(XREF)&&is.null(YREF)){
 
     scaled_values <- scale(rbind(cbind(Y,X),WR), center = F)
@@ -112,10 +118,6 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
       WR <- matrix(scaled_values[(nrow(X)+nrow(XREF)+1):(nrow(X)+nrow(XREF)+nrow(WR)),
                                  1:(ncol(X)+ncol(Y))], ncol = (ncol(X)+ncol(Y)))
     }
-  }
-
-  if (!(RTS %in% possible_rts)){
-    stop("Unknown scale of returns:", RTS)
   }
 
   # adjustments to NONDISC variables
@@ -163,18 +165,23 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
       YREF <- as.matrix(YREF[-i,])
     }
 
-    # controls is a vector containing all lambdas, G (Eff score),
+    # controls is a vector containing all lambdas, Eff score,
     # and all the mu's (one mu per row of WR)
+    # Objective function is first decision variable after lambdas
     eval_f <- function(controls){
       return(controls[nrow(XREF)+1])
     }
 
+    # Setting up optimization without weight restrictions
     if (is.null(WR)){
 
+      # Gradient of the objective function
       eval_grad_f <- function(controls){
         return(c(rep(0, nrow(XREF)), 1))
       }
 
+      # Inequality constraints as vector for non-disc and disc variables
+      # as well as ndrs and nirs if specified
       eval_g_ineq <- function(controls){
         constr <- c()
         for (j in c(1:ncol(XREF))[DISC_IN]){
@@ -204,6 +211,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         return(constr)
       }
 
+      # Jacobian of the inequality constraints stored in a matrix for
+      # each constraint
       eval_jac_g_ineq <- function(controls){
         jacobian_X <- c()
         jacobian_Y <- c()
@@ -237,6 +246,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         return(jacobian)
       }
 
+      # Equality constraints and jacobian as vector for vrs
+      # otherwise NULL
       if (RTS == "vrs"){
         eval_g_eq <- function(controls){
           constr <- c(sum(controls[1:nrow(XREF)]) - 1)
@@ -252,11 +263,15 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         eval_jac_g_eq <- NULL
       }
 
+    # Setting up optimization with weight restrictions
     } else{
+      # Gradient of the objective function
       eval_grad_f <- function(controls){
         return(c(rep(0, nrow(XREF)), 1, c(rep(0, nrow(WR)))))
       }
 
+      # Inequality constraints as vector for non-disc and disc variables
+      # with WR as well as ndrs and nirs if specified
       eval_g_ineq <- function(controls){
         constr <- c()
         for (j in c(1:ncol(XREF))[DISC_IN]){
@@ -286,6 +301,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         return(constr)
       }
 
+      # Jacobian of the inequality constraints as matrix
       eval_jac_g_ineq <- function(controls){
         jacobian_X <- c()
         jacobian_Y <- c()
@@ -320,6 +336,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         return(jacobian)
       }
 
+      # Equality constraints and jacobian as vector for VRS
       if (RTS == "vrs"){
         eval_g_eq <- function(controls){
           constr <- c(sum(controls[1:nrow(XREF)]) - 1)
@@ -336,6 +353,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
       }
     }
 
+    # Initial values in controls0 to start optimization
+    # and bounds for the optimization
     if (is.null(WR)){
       controls0 <- c(rep(0, nrow(XREF)), 1)
       if (!XREF_YREF){
@@ -353,13 +372,14 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     }
 
 
+    # setting number of inequality constraints
     if (RTS == "ndrs" || RTS == "nirs"){
       no_constr_ineq <- ncol(X)+ncol(Y)+1
     } else{
       no_constr_ineq <- ncol(X)+ncol(Y)
     }
 
-
+    # Set up non-linear optimizer
     opts <-list("algorithm"="NLOPT_LD_SLSQP",
                 "xtol_rel"=ACCURACY,
                 "maxeval"=1000000,
@@ -375,6 +395,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
                  eval_jac_g_eq = eval_jac_g_eq,
                  opts=opts)
 
+    # res will be stored in result_list for each i given by the foreach loop
+
   }
   ) # end of suppress warnings
 
@@ -383,6 +405,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     registerDoSEQ()
   }
 
+  # Extract results for weight restrictions
   for (i in 1:nrow(X)){
     if (!is.null(WR)){
       results$mus[i,] <- result_list[[i]]$solution[(nrow(XREF)+2):(nrow(XREF)+1+nrow(WR))]
@@ -428,6 +451,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
           # Theta is stored for slack estimations.
           theta_list <- c(eff_list, ifelse(eff_Y>=eff_X, eff_Y, eff_X))
         }
+
+        # Extract results for fdh optimization
         possible_eff <- data.frame(peer_list, eff_list)
         eff_fdh <- min(possible_eff$eff_list)
         peer <- which(possible_eff[, "eff_list"] == eff_fdh)[1]
@@ -440,6 +465,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         stop("FDH cannot be combined with weight restrictions")
       }
     } else{
+      # Storage of results if not fdh
       if (SUPEREFF){
         eff <- c(eff, ifelse(ALPHA >= 0.5, result_list[[i]]$solution[nrow(XREF)]^ALPHA,
                              result_list[[i]]$solution[nrow(XREF)]^(1 - ALPHA)))
@@ -447,6 +473,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
         lambda <- append(lambda, NA, after = i-1)
         results$lambdas[i,] <- lambda
       } else{
+        # Storage of results if not fdh or super-efficiency
         eff <- c(eff, ifelse(ALPHA >= 0.5, result_list[[i]]$solution[nrow(XREF)+1]^ALPHA,
                              result_list[[i]]$solution[nrow(XREF)+1]^(1 - ALPHA)))
         results$lambdas[i,] <- result_list[[i]]$solution[1:nrow(XREF)]
