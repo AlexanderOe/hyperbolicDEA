@@ -1,6 +1,6 @@
 Type: Package
 Package: hyperbolicDEA
-Title: Hyperbolic DEA implementation
+Title: Hyperbolic DEA estimation
 Version: 0.1.1
 Authors@R: c(
     person("Alexander", "Öttl", , "alexoettl34@gmail.com", role = c("cre", "aut"),

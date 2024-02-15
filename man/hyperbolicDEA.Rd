@@ -2,7 +2,7 @@
 % Please edit documentation in R/hyperbolicDEA.R
 \name{hyperbolicDEA}
 \alias{hyperbolicDEA}
-\title{hyperbolicDEA}
+\title{Hyperbolic estimation of DEA efficiency scores}
 \usage{
 hyperbolicDEA(
   X,

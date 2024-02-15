@@ -1,4 +1,4 @@
-#' @title hyperbolicDEA
+#' @title Hyperbolic estimation of DEA efficiency scores
 #'
 #' @description Hyperbolic DEA implementation including weight restrictions,
 #' non-discretionary variables, gerenralized distance function, external referencing, estimation of slacks and
