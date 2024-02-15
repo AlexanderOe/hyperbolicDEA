@@ -33,4 +33,5 @@ input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = T)
 output_prices <- matrix(c(1,1,1,1), ncol = 1)
 
 max_prof_nolin<- nlprofitDEA(X,Y,input_prices,output_prices)
+
 }
