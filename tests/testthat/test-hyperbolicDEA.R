@@ -137,4 +137,62 @@ test_that("multiple weight restricitons", {
 
 })
 
+test_that("costDEA", {
+  
+  X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
+  Y <- matrix(c(1,1,1,1), ncol = 1)
+  
+  input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
+  
+  min_cost <- costDEA(X,Y,input_prices)
+  BO_cost <- Benchmarking::cost.opt(X,Y,input_prices)
+  
+  expect_equal(all.equal(as.matrix(min_cost$opt_value), 
+                         as.matrix(BO_cost$xopt), check.attributes = FALSE), TRUE)
+  
+  expect_equal(all.equal(as.matrix(min_cost$lambdas), 
+                         as.matrix(BO_cost$lambda), check.attributes = FALSE), TRUE)
+  
+})
+
+test_that("lprofitDEA", {
+  
+  X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
+  Y <- matrix(c(1,1,1,1), ncol = 1)
+  
+  input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
+  output_prices <- matrix(c(1,1,1,1), ncol = 1)
+  
+  max_profit <- lprofitDEA(X,Y,input_prices, output_prices)
+  BO_revenue <- Benchmarking::profit.opt(X,Y,input_prices, output_prices)
+  
+  expect_equal(all.equal(as.matrix(max_profit$opt_value), 
+                         as.matrix(cbind(BO_revenue$xopt, BO_revenue$yopt)), 
+                                   check.attributes = FALSE), TRUE)
+  
+  expect_equal(all.equal(as.matrix(max_profit$lambdas), 
+                         as.matrix(BO_revenue$lambda), check.attributes = FALSE), TRUE)
+  
+})
+
+test_that("nlprofitDEA", {
+  
+  X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
+  Y <- matrix(c(1,1,1,1), ncol = 1)
+  
+  input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
+  output_prices <- matrix(c(1,1,1,1), ncol = 1)
+  
+  max_profit <- nlprofitDEA(X,Y,input_prices, output_prices)
+  BO_revenue <- Benchmarking::profit.opt(X,Y,input_prices, output_prices)
+  
+  expect_equal(all.equal(as.matrix(max_profit$opt_value), 
+                         as.matrix(cbind(BO_revenue$xopt, BO_revenue$yopt)), 
+                         check.attributes = FALSE), TRUE)
+  
+  expect_equal(all.equal(as.matrix(max_profit$lambdas), 
+                         as.matrix(BO_revenue$lambda), check.attributes = FALSE), TRUE)
+  
+})
+
 
