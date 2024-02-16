@@ -1,28 +1,33 @@
 #' @title Non-linear profit DEA model
 #' @description Non-linear profit DEA model optimizing the ratio of cost over revenue
+#' 
+#' @seealso Julia package BenchmarkingEconomicEfficiency.jl and the function deaprofitability()
+#' for non-linear profit DEA model
 #'
 #' @param X Matrix or dataframe with DMUS as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
-#' @param input_prices Matrix or dataframe with prices for each DMU and input.
+#' @param pX Matrix or dataframe with prices for each DMU and input.
 #' Therefore it mus have the same dimensions as X.
-#' @param output_prices Matrix or dataframe with prices for each DMU and output.
+#' @param pY Matrix or dataframe with prices for each DMU and output.
 #' Therefore it mus have the same dimensions as Y.
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs"
-#' @return A list object containing optimal inputs and outputs and lambdas
+#' @return A list object containing optimal inputs and outputs, lambdas indicating
+#' the peers for optimal allocation and profitability score as the ratio of revenue
+#' over cost for optimal and observed allocation.
 #' @examples
 #' X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 #' Y <- matrix(c(1,1,1,1), ncol = 1)
 #'
-#' input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = T)
-#' output_prices <- matrix(c(1,1,1,1), ncol = 1)
+#' pX <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
+#' pY <- matrix(c(1,1,1,1), ncol = 1)
 #'
-#' max_prof_nolin<- nlprofitDEA(X,Y,input_prices,output_prices)
+#' max_prof_nolin<- nlprofitDEA(X,Y,pX,pY)
 #'
 #' @import nloptr
 #' @export
 
 
-nlprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs"){
+nlprofitDEA <- function(X, Y, pX, pY, RTS = "vrs"){
 
   # Check arguments given by user
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -31,17 +36,17 @@ nlprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs"){
   if (!is.matrix(Y) && !is.data.frame(Y) && !is.numeric(Y)){
     stop("Y must be a numeric vector, matrix or dataframe")
   }
-  if (!is.matrix(input_prices) && !is.data.frame(input_prices) && !is.numeric(input_prices)){
-    stop("input_prices must be a numeric vector, matrix or dataframe")
+  if (!is.matrix(pX) && !is.data.frame(pX) && !is.numeric(pX)){
+    stop("pX must be a numeric vector, matrix or dataframe")
   }
-  if (!is.matrix(output_prices) && !is.data.frame(output_prices) && !is.numeric(output_prices)){
-    stop("output_prices must be a numeric vector, matrix or dataframe")
+  if (!is.matrix(pY) && !is.data.frame(pY) && !is.numeric(pY)){
+    stop("pY must be a numeric vector, matrix or dataframe")
   }
-  if (!identical(dim(X), dim(input_prices))) {
-    stop("Dimensions of input_prices and X are not the same.")
+  if (!identical(dim(X), dim(pX))) {
+    stop("Dimensions of pX and X are not the same.")
   }
-  if (!identical(dim(Y), dim(output_prices))) {
-    stop("Dimensions of output_prices and Y are not the same.")
+  if (!identical(dim(Y), dim(pY))) {
+    stop("Dimensions of pY and Y are not the same.")
   }
 
   RTS <- tolower(RTS)
@@ -53,8 +58,8 @@ nlprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs"){
   # uniform data structure
   X <- as.matrix(X)
   Y <- as.matrix(Y)
-  input_prices <- as.matrix(input_prices)
-  output_prices <- as.matrix(output_prices)
+  pX <- as.matrix(pX)
+  pY <- as.matrix(pY)
 
 
   # storage for results
@@ -67,23 +72,23 @@ nlprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs"){
     # Definition of the objective function. We take cost over revenue to
     # have a minimization problem instead of a maximization problem
     eval_f <- function(controls){
-      cost <- sum(controls[(nrow(X)+1):(nrow(X)+ncol(X))]*input_prices[i,])
-      revenue <- sum(controls[(nrow(X)+ncol(X)+1):(nrow(X)+ncol(X)+ncol(Y))]*output_prices[i,])
+      cost <- sum(controls[(nrow(X)+1):(nrow(X)+ncol(X))]*pX[i,])
+      revenue <- sum(controls[(nrow(X)+ncol(X)+1):(nrow(X)+ncol(X)+ncol(Y))]*pY[i,])
       return(cost/revenue)
     }
 
     # Definition of the gradient of the objective function
     eval_grad_f <- function(controls){
       grad <- c(rep(0, nrow(X)))
-      cost <-  sum(controls[(nrow(X)+1):(nrow(X)+ncol(X))]*input_prices[i,])
-      revenue <- sum(controls[(nrow(X)+ncol(X)+1):(nrow(X)+ncol(X)+ncol(Y))]*output_prices[i,])
+      cost <-  sum(controls[(nrow(X)+1):(nrow(X)+ncol(X))]*pX[i,])
+      revenue <- sum(controls[(nrow(X)+ncol(X)+1):(nrow(X)+ncol(X)+ncol(Y))]*pY[i,])
       # Partial derivatives with respect to the inputs
       for (m in 1:ncol(X)){
-        grad <- c(grad, input_prices[i,m]/revenue)
+        grad <- c(grad, pX[i,m]/revenue)
       }
       # Partial derivatives with respect to the outputs
       for (n in 1:ncol(Y)){
-        grad <- c(grad, -output_prices[i,n]*cost/revenue^2)
+        grad <- c(grad, -pY[i,n]*cost/revenue^2)
       }
       return(grad)
     }
@@ -146,8 +151,8 @@ nlprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs"){
 
     # Start searching at best ratio with given prices of the DMU
     # Transposing for vector multiplication
-    cost <- rowSums(t(t(X)*input_prices[i,]))
-    revenue <- rowSums(t(t(Y)*output_prices[i,]))
+    cost <- rowSums(t(t(X)*pX[i,]))
+    revenue <- rowSums(t(t(Y)*pY[i,]))
 
     # Calculate the ratios
     ratios <- revenue/cost
@@ -186,9 +191,12 @@ nlprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs"){
   # Add column names
   colnames(lambdas) <- c(paste("Lambda",1:nrow(X),sep=""))
   colnames(opt_value) <- c(paste("X",1:ncol(X),sep=""), paste("Y",1:ncol(Y),sep=""))
+  
+  # Profitability efficiency
+  profit_eff <- (rowSums(Y*pY)/rowSums(X*pX)) / (rowSums(pY*opt_value[,(ncol(X)+1):(ncol(X)+ncol(Y))])/rowSums(pX*opt_value[,1:ncol(X)]))
 
 
   # Return the results
-  return(list(lambdas = lambdas, opt_value = opt_value))
+  return(list(lambdas = lambdas, opt_value = opt_value, profit_eff = profit_eff))
 
 }

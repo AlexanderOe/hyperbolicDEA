@@ -4,23 +4,25 @@
 \alias{nlprofitDEA}
 \title{Non-linear profit DEA model}
 \usage{
-nlprofitDEA(X, Y, input_prices, output_prices, RTS = "vrs")
+nlprofitDEA(X, Y, pX, pY, RTS = "vrs")
 }
 \arguments{
 \item{X}{Matrix or dataframe with DMUS as rows and inputs as columns}
 
 \item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
 
-\item{input_prices}{Matrix or dataframe with prices for each DMU and input.
+\item{pX}{Matrix or dataframe with prices for each DMU and input.
 Therefore it mus have the same dimensions as X.}
 
-\item{output_prices}{Matrix or dataframe with prices for each DMU and output.
+\item{pY}{Matrix or dataframe with prices for each DMU and output.
 Therefore it mus have the same dimensions as Y.}
 
 \item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs"}
 }
 \value{
-A list object containing optimal inputs and outputs and lambdas
+A list object containing optimal inputs and outputs, lambdas indicating
+the peers for optimal allocation and profitability score as the ratio of revenue
+over cost for optimal and observed allocation.
 }
 \description{
 Non-linear profit DEA model optimizing the ratio of cost over revenue
@@ -29,9 +31,13 @@ Non-linear profit DEA model optimizing the ratio of cost over revenue
 X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 Y <- matrix(c(1,1,1,1), ncol = 1)
 
-input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = T)
-output_prices <- matrix(c(1,1,1,1), ncol = 1)
+pX <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
+pY <- matrix(c(1,1,1,1), ncol = 1)
 
-max_prof_nolin<- nlprofitDEA(X,Y,input_prices,output_prices)
+max_prof_nolin<- nlprofitDEA(X,Y,pX,pY)
 
+}
+\seealso{
+Julia package BenchmarkingEconomicEfficiency.jl and the function deaprofitability()
+for non-linear profit DEA model
 }

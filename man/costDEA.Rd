@@ -4,20 +4,22 @@
 \alias{costDEA}
 \title{Cost DEA model}
 \usage{
-costDEA(X, Y, input_prices, RTS = "vrs")
+costDEA(X, Y, pX, RTS = "vrs")
 }
 \arguments{
 \item{X}{Matrix or dataframe with DMUS as rows and inputs as columns}
 
 \item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
 
-\item{input_prices}{Matrix or dataframe with prices for each DMU and input.
+\item{pX}{Matrix or dataframe with prices for each DMU and input.
 Therefore it mus have the same dimensions as X.}
 
 \item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs"}
 }
 \value{
-A list object containing cost optimal inputs and lambdas
+A list object containing cost optimal inputs and lambdas indiceting
+the the peer for optimal input allocation. Additionally, it returns the cost 
+efficiency as the ratio of the optimal cost to the observed cost.
 }
 \description{
 Cost DEA model optimizing the input allocation with given prices.
@@ -27,9 +29,12 @@ It returns the estimated lambdas as well as the optimal values for inputs.
 X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 Y <- matrix(c(1,1,1,1), ncol = 1)
 
-input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = T)
+pX <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
 
 
-cost_eff_input <- costDEA(X,Y,input_prices)
+cost_eff_input <- costDEA(X,Y,pX)
 
+}
+\seealso{
+[Benchmakring::cost.opt] for a similar function
 }

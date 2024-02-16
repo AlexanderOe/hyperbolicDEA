@@ -4,23 +4,25 @@
 \alias{lprofitDEA}
 \title{Linear profit DEA model}
 \usage{
-lprofitDEA(X, Y, input_prices, output_prices, RTS = "vrs")
+lprofitDEA(X, Y, pX, pY, RTS = "vrs")
 }
 \arguments{
 \item{X}{Matrix or dataframe with DMUS as rows and inputs as columns}
 
 \item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
 
-\item{input_prices}{Matrix or dataframe with prices for each DMU and input.
+\item{pX}{Matrix or dataframe with prices for each DMU and input.
 Therefore it mus have the same dimensions as X.}
 
-\item{output_prices}{Matrix or dataframe with prices for each DMU and output.
+\item{pY}{Matrix or dataframe with prices for each DMU and output.
 Therefore it mus have the same dimensions as Y.}
 
 \item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs"}
 }
 \value{
-A list object containing optimal inputs and outputs and lambdas
+A list object containing optimal inputs and outputs, lambdas for the 
+peers of optimal allocation and efficiency scores as the ratio of the differences
+between the observed and optimal difference of cost to revenue.
 }
 \description{
 Linear profit DEA model optimizing the difference of cost to revenue.
@@ -30,9 +32,12 @@ It returns the estimated lambdas as well as the optimal values for inputs and ou
 X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 Y <- matrix(c(1,1,1,1), ncol = 1)
 
-input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = T)
-output_prices <- matrix(c(1,1,1,1), ncol = 1)
+pX <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
+pY <- matrix(c(1,1,1,1), ncol = 1)
 
-max_prof_lin<- lprofitDEA(X,Y,input_prices,output_prices)
+max_prof_lin<- lprofitDEA(X,Y,pX,pY)
 
+}
+\seealso{
+[Benchmakring::revenue.opt] for a similar function
 }

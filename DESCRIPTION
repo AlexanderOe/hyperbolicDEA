@@ -10,13 +10,14 @@ Authors@R: c(
 Maintainer: Alexander Öttl <alexoettl34@gmail.com>
 Description: Hyperbolic DEA implementation including weight restrictions,
     estimation of slacks, superefficiency scores, and more.
-License: GPL-3
+License: MIT + file LICENSE
 Imports: 
     doParallel,
     dplyr,
     foreach,
     lpSolveAPI,
-    nloptr
+    nloptr,
+    Benchmarking
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

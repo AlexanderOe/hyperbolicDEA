@@ -1,26 +1,30 @@
 #' @title Cost DEA model
 #' @description Cost DEA model optimizing the input allocation with given prices.
 #' It returns the estimated lambdas as well as the optimal values for inputs.
+#' 
+#' @seealso [Benchmakring::cost.opt] for a similar function
 #'
 #' @param X Matrix or dataframe with DMUS as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
-#' @param input_prices Matrix or dataframe with prices for each DMU and input.
+#' @param pX Matrix or dataframe with prices for each DMU and input.
 #' Therefore it mus have the same dimensions as X.
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs"
-#' @return A list object containing cost optimal inputs and lambdas
+#' @return A list object containing cost optimal inputs and lambdas indiceting
+#' the the peer for optimal input allocation. Additionally, it returns the cost 
+#' efficiency as the ratio of the optimal cost to the observed cost.
 #' @examples
 #' X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 #' Y <- matrix(c(1,1,1,1), ncol = 1)
 #'
-#' input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = T)
+#' pX <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
 #' 
 #'
-#' cost_eff_input <- costDEA(X,Y,input_prices)
+#' cost_eff_input <- costDEA(X,Y,pX)
 #'
 #' @import lpSolveAPI
 #' @export
 
-costDEA <- function(X, Y, input_prices, RTS = "vrs") {
+costDEA <- function(X, Y, pX, RTS = "vrs") {
   
   # Check arguments given by user 
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -29,11 +33,11 @@ costDEA <- function(X, Y, input_prices, RTS = "vrs") {
   if (!is.matrix(Y) && !is.data.frame(Y) && !is.numeric(Y)){
     stop("Y must be a numeric vector, matrix or dataframe")
   }
-  if (!is.matrix(input_prices) && !is.data.frame(input_prices) && !is.numeric(input_prices)){
-    stop("input_prices must be a numeric vector, matrix or dataframe")
+  if (!is.matrix(pX) && !is.data.frame(pX) && !is.numeric(pX)){
+    stop("pX must be a numeric vector, matrix or dataframe")
   }
-  if (!identical(dim(X), dim(input_prices))) {
-    stop("Dimensions of input_prices and X are not the same.")
+  if (!identical(dim(X), dim(pX))) {
+    stop("Dimensions of pX and X are not the same.")
   }
   
   RTS <- tolower(RTS)
@@ -45,7 +49,7 @@ costDEA <- function(X, Y, input_prices, RTS = "vrs") {
   # Change data structure to uniformly be matrices
   X <- as.matrix(X)
   Y <- as.matrix(Y)
-  input_prices <- as.matrix(input_prices)
+  pX <- as.matrix(pX)
   
   # Change data structure to add columns
   in_out_data <- rbind(t(X),t(Y))
@@ -79,7 +83,7 @@ costDEA <- function(X, Y, input_prices, RTS = "vrs") {
     }
     
     # Set the objective function
-    set.objfn(cost_lp, c(rep(0,ncol(in_out_data)),input_prices[i,]))
+    set.objfn(cost_lp, c(rep(0,ncol(in_out_data)),pX[i,]))
     
     # Set constraint-types
     set.constr.type(cost_lp, c(rep("<=", ncol(X)), rep(">=", ncol(Y))))
@@ -110,7 +114,10 @@ costDEA <- function(X, Y, input_prices, RTS = "vrs") {
   colnames(lambdas) <- c(paste("Lambda",1:ncol(in_out_data),sep=""))
   colnames(opt_value) <- c(paste("X",1:ncol(X),sep=""))
   
+  # Estimate cost efficiency
+  cost_eff <- rowSums(opt_value * pX) / rowSums(X * pX)
+  
   
   # Return the results
-  return(list(lambdas = lambdas, opt_value = opt_value))
+  return(list(lambdas = lambdas, opt_value = opt_value, cost_eff = cost_eff))
 }

@@ -30,13 +30,14 @@
 #' @examples
 #' X <- c(1,1,2,4,1.5,2,4,3)
 #' Y <- c(1,2,4,4,0.5,2.5,3.5,4)
-#' hyperbolicDEA(X,Y,RTS="vrs", SUPEREFF = F)
+#' hyperbolicDEA(X,Y,RTS="vrs", SUPEREFF = FALSE)
 #'
 #' @import dplyr
 #' @import nloptr
 #' @import lpSolveAPI
 #' @import foreach
 #' @import doParallel
+#' @import Benchmarking
 #'
 #' @export
 

@@ -65,6 +65,6 @@ for Between-Group Comparisons" (2023) by Alexander Öttl, Mette Asmild, and Dani
 \examples{
 X <- c(1,1,2,4,1.5,2,4,3)
 Y <- c(1,2,4,4,0.5,2.5,3.5,4)
-hyperbolicDEA(X,Y,RTS="vrs", SUPEREFF = F)
+hyperbolicDEA(X,Y,RTS="vrs", SUPEREFF = FALSE)
 
 }

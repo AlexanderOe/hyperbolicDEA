@@ -1,29 +1,33 @@
 #' @title Linear profit DEA model
 #' @description Linear profit DEA model optimizing the difference of cost to revenue.
 #' It returns the estimated lambdas as well as the optimal values for inputs and outputs.
+#' 
+#' @seealso [Benchmakring::revenue.opt] for a similar function
 #'
 #' @param X Matrix or dataframe with DMUS as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
-#' @param input_prices Matrix or dataframe with prices for each DMU and input.
+#' @param pX Matrix or dataframe with prices for each DMU and input.
 #' Therefore it mus have the same dimensions as X.
-#' @param output_prices Matrix or dataframe with prices for each DMU and output.
+#' @param pY Matrix or dataframe with prices for each DMU and output.
 #' Therefore it mus have the same dimensions as Y.
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs"
-#' @return A list object containing optimal inputs and outputs and lambdas
+#' @return A list object containing optimal inputs and outputs, lambdas for the 
+#' peers of optimal allocation and efficiency scores as the ratio of the differences
+#' between the observed and optimal difference of cost to revenue.
 #' @examples
 #' X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 #' Y <- matrix(c(1,1,1,1), ncol = 1)
 #'
-#' input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = T)
-#' output_prices <- matrix(c(1,1,1,1), ncol = 1)
+#' pX <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
+#' pY <- matrix(c(1,1,1,1), ncol = 1)
 #'
-#' max_prof_lin<- lprofitDEA(X,Y,input_prices,output_prices)
+#' max_prof_lin<- lprofitDEA(X,Y,pX,pY)
 #'
 #' @import lpSolveAPI
 #' @export
 
 
-lprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs") {
+lprofitDEA <- function(X, Y, pX, pY, RTS = "vrs") {
   
   # Check arguments given by user 
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -32,17 +36,17 @@ lprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs") {
   if (!is.matrix(Y) && !is.data.frame(Y) && !is.numeric(Y)){
     stop("Y must be a numeric vector, matrix or dataframe")
   }
-  if (!is.matrix(input_prices) && !is.data.frame(input_prices) && !is.numeric(input_prices)){
-    stop("input_prices must be a numeric vector, matrix or dataframe")
+  if (!is.matrix(pX) && !is.data.frame(pX) && !is.numeric(pX)){
+    stop("pX must be a numeric vector, matrix or dataframe")
   }
-  if (!is.matrix(output_prices) && !is.data.frame(output_prices) && !is.numeric(output_prices)){
-    stop("output_prices must be a numeric vector, matrix or dataframe")
+  if (!is.matrix(pY) && !is.data.frame(pY) && !is.numeric(pY)){
+    stop("pY must be a numeric vector, matrix or dataframe")
   }
-  if (!identical(dim(X), dim(input_prices))) {
-    stop("Dimensions of input_prices and X are not the same.")
+  if (!identical(dim(X), dim(pX))) {
+    stop("Dimensions of pX and X are not the same.")
   }
-  if (!identical(dim(Y), dim(output_prices))) {
-    stop("Dimensions of output_prices and Y are not the same.")
+  if (!identical(dim(Y), dim(pY))) {
+    stop("Dimensions of pY and Y are not the same.")
   }
   
   RTS <- tolower(RTS)
@@ -55,8 +59,8 @@ lprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs") {
   # Change data structure to uniformly be matrices
   X <- as.matrix(X)
   Y <- as.matrix(Y)
-  input_prices <- as.matrix(input_prices)
-  output_prices <- as.matrix(output_prices)
+  pX <- as.matrix(pX)
+  pY <- as.matrix(pY)
   
   # Change data structure to add columns
   in_out_data <- rbind(t(X),t(Y))
@@ -92,7 +96,7 @@ lprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs") {
     
     # Set the objective function minus for costs and plus for revenues
     # with the respective prices
-    set.objfn(profit_lp, c(rep(0,ncol(in_out_data)),-input_prices[i,],output_prices[i,]))
+    set.objfn(profit_lp, c(rep(0,ncol(in_out_data)),-pX[i,],pY[i,]))
     
     # Set constraint-types
     set.constr.type(profit_lp, c(rep("<=", ncol(X)), rep(">=", ncol(Y))))
@@ -123,7 +127,10 @@ lprofitDEA <- function(X, Y, input_prices, output_prices, RTS = "vrs") {
   colnames(lambdas) <- c(paste("Lambda",1:nrow(X),sep=""))
   colnames(opt_value) <- c(paste("X",1:ncol(X),sep=""), paste("Y",1:ncol(Y),sep=""))
   
+  # Estimate profit efficiency
+  profit_eff <- (rowSums(pY*Y) - rowSums(pX*X))/(rowSums(pY*opt_value[,(ncol(X)+1):nrow(in_out_data)]) - rowSums(pX*opt_value[,1:ncol(X)]))
+  
   # Return the results
-  return(list(lambdas = lambdas, opt_value = opt_value))
+  return(list(lambdas = lambdas, opt_value = opt_value, profit_eff = profit_eff))
 }
 

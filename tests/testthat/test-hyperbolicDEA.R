@@ -1,7 +1,3 @@
-library(Benchmarking)
-library(hyperbolicDEA)
-
-
 test_that("VRS", {
   X <- c(2,3,3,8,9)
   Y <- c(5,5,6,7,10)
@@ -54,7 +50,7 @@ test_that("ALPHA=1 output orientation", {
   Y <- c(1,3,2,5,4,6)
 
   eff_alpha<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 1)$eff
-  eff <- 1/dea(X, Y, RTS = "vrs", ORIENTATION = "out")$eff
+  eff <- 1/Benchmarking::dea(X, Y, RTS = "vrs", ORIENTATION = "out")$eff
 
   expect_equal(round(eff_alpha,3), round(eff,3))
 })
@@ -64,7 +60,7 @@ test_that("ALPHA=0 input orientation", {
   Y <- c(1,3,2,5,4,6)
 
   eff_alpha<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 0)$eff
-  eff <- dea(X, Y, RTS = "vrs", ORIENTATION = "in")$eff
+  eff <- Benchmarking::dea(X, Y, RTS = "vrs", ORIENTATION = "in")$eff
 
   expect_equal(round(eff_alpha,3), round(eff,3))
 })
@@ -74,7 +70,7 @@ test_that("SLACK", {
   Y <- c(1,2,4,3)
 
   effHyp<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 1, SLACK = T)
-  eff <- dea(X, Y, RTS = "vrs", ORIENTATION = "out",SLACK = T)
+  eff <- Benchmarking::dea(X, Y, RTS = "vrs", ORIENTATION = "out",SLACK = T)
 
   logic_vec <- rowSums(round(effHyp$slack,3)) > 0
   logic_vec <- unname(logic_vec)
@@ -88,17 +84,17 @@ test_that("fdh", {
 
   # Hyperbolic Orientation
   effHyp<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 0.5)
-  eff <- dea(X, Y, RTS = "fdh", ORIENTATION = "graph")
+  eff <- Benchmarking::dea(X, Y, RTS = "fdh", ORIENTATION = "graph")
   expect_equal(round(effHyp$eff, 3), round(eff$eff, 3))
 
   # Output Orientation
   effHyp_out<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 1)
-  eff_out <- dea(X, Y, RTS = "fdh", ORIENTATION = "out")
+  eff_out <- Benchmarking::dea(X, Y, RTS = "fdh", ORIENTATION = "out")
   expect_equal(round(effHyp_out$eff, 3), round(1/eff_out$eff, 3))
 
   # Output Orientation
   effHyp_in<- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 0)
-  eff_in <- dea(X, Y, RTS = "fdh", ORIENTATION = "in")
+  eff_in <- Benchmarking::dea(X, Y, RTS = "fdh", ORIENTATION = "in")
   expect_equal(round(effHyp_in$eff, 3), round(eff_in$eff, 3))
 
   # Multidimensional
@@ -106,7 +102,7 @@ test_that("fdh", {
   y <- matrix(c(1,1,3,4,
                 1,3,2,1), ncol = 2)
   est_hyp <- hyperbolicDEA(x, y, RTS = "fdh", ALPHA = 1)
-  est <- dea(x, y, RTS = "fdh", ORIENTATION = "out")
+  est <- Benchmarking::dea(x, y, RTS = "fdh", ORIENTATION = "out")
 
   expect_equal(round(est_hyp$eff, 3), round(1/est$eff, 3))
 
@@ -116,7 +112,7 @@ test_that("fdh", {
   Y <- as.matrix(c(1,3,2,5,4,6))
 
   effHyp <- hyperbolicDEA(X, Y, RTS = "fdh", ALPHA = 1)
-  effBO <- dea(X, Y, RTS = "fdh", ORIENTATION = "out")
+  effBO <- Benchmarking::dea(X, Y, RTS = "fdh", ORIENTATION = "out")
   expect_equal(all.equal(effHyp$lambdas, effBO$lambda, check.attributes = FALSE), TRUE)
 
 })
@@ -133,7 +129,7 @@ test_that("multiple weight restricitons", {
                      0,1,-1),
                    ncol = 3, nrow = 2, byrow = TRUE)
 
-  BO_crs_WR <- dea.dual(cbind(X1, X2), Y, RTS = "crs", ORIENTATION = "in", DUAL = WR)
+  BO_crs_WR <- Benchmarking::dea.dual(cbind(X1, X2), Y, RTS = "crs", ORIENTATION = "in", DUAL = WR)
 
   hyp_crs_WR <- hyperbolicDEA(cbind(X1, X2), Y, RTS = "crs", ALPHA = 0, WR = WR_hyp)
   expect_equal(round(BO_crs_WR$eff, 3), round(hyp_crs_WR$eff, 3))
