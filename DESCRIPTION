@@ -1,6 +1,6 @@
 Type: Package
 Package: hyperbolicDEA
-Title: Hyperbolic DEA estimation
+Title: Hyperbolic DEA Estimation
 Version: 0.1.1
 Authors@R: c(
     person("Alexander", "Öttl", , "alexoettl34@gmail.com", role = c("cre", "aut"),
@@ -9,7 +9,7 @@ Authors@R: c(
   )
 Maintainer: Alexander Öttl <alexoettl34@gmail.com>
 Description: Hyperbolic DEA implementation including weight restrictions,
-    estimation of slacks, superefficiency scores, and more.
+    estimation of slacks, super-efficiency scores, and more.
 License: MIT + file LICENSE
 Imports: 
     doParallel,

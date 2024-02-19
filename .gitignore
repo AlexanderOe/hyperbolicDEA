@@ -49,3 +49,6 @@ po/*~
 rsconnect/
 
 *.Rproj
+
+# Discard CRAN licence file
+LICENSE

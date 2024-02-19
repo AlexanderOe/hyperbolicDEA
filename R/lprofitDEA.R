@@ -2,7 +2,7 @@
 #' @description Linear profit DEA model optimizing the difference of cost to revenue.
 #' It returns the estimated lambdas as well as the optimal values for inputs and outputs.
 #' 
-#' @seealso [Benchmakring::revenue.opt] for a similar function
+#' @seealso [Benchmakring::profit.opt] for a similar function
 #'
 #' @param X Matrix or dataframe with DMUS as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
