@@ -36,6 +36,12 @@ costDEA <- function(X, Y, pX, RTS = "vrs") {
   if (!is.matrix(pX) && !is.data.frame(pX) && !is.numeric(pX)){
     stop("pX must be a numeric vector, matrix or dataframe")
   }
+  
+  # Change data structure to uniformly be matrices
+  X <- as.matrix(X)
+  Y <- as.matrix(Y)
+  pX <- as.matrix(pX)
+  
   if (!identical(dim(X), dim(pX))) {
     stop("Dimensions of pX and X are not the same.")
   }
@@ -45,11 +51,6 @@ costDEA <- function(X, Y, pX, RTS = "vrs") {
   if (!(RTS %in% possible_rts)){
     stop("Scale of returns not implemented:", RTS)
   }
-  
-  # Change data structure to uniformly be matrices
-  X <- as.matrix(X)
-  Y <- as.matrix(Y)
-  pX <- as.matrix(pX)
   
   # Change data structure to add columns
   in_out_data <- rbind(t(X),t(Y))

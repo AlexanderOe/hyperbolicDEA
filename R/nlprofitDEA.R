@@ -42,6 +42,13 @@ nlprofitDEA <- function(X, Y, pX, pY, RTS = "vrs"){
   if (!is.matrix(pY) && !is.data.frame(pY) && !is.numeric(pY)){
     stop("pY must be a numeric vector, matrix or dataframe")
   }
+  
+  # uniform data structure
+  X <- as.matrix(X)
+  Y <- as.matrix(Y)
+  pX <- as.matrix(pX)
+  pY <- as.matrix(pY)
+  
   if (!identical(dim(X), dim(pX))) {
     stop("Dimensions of pX and X are not the same.")
   }
@@ -54,12 +61,6 @@ nlprofitDEA <- function(X, Y, pX, pY, RTS = "vrs"){
   if (!(RTS %in% possible_rts)){
     stop("Scale of returns not implemented:", RTS)
   }
-
-  # uniform data structure
-  X <- as.matrix(X)
-  Y <- as.matrix(Y)
-  pX <- as.matrix(pX)
-  pY <- as.matrix(pY)
 
 
   # storage for results
