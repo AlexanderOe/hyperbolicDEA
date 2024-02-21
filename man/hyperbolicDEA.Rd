@@ -9,11 +9,11 @@ hyperbolicDEA(
   Y,
   RTS = "vrs",
   WR = NULL,
-  SLACK = F,
+  SLACK = FALSE,
   ACCURACY = 1e-10,
   XREF = NULL,
   YREF = NULL,
-  SUPEREFF = F,
+  SUPEREFF = FALSE,
   NONDISC_IN = NULL,
   NONDISC_OUT = NULL,
   PARALLEL = 1,
@@ -37,7 +37,7 @@ hyperbolicDEA(
 
 \item{YREF}{Matrix or dataframe with firms defining the technology as rows and outputs as columns}
 
-\item{SUPEREFF}{Variable indicating whether superefficiencies shall be estimated}
+\item{SUPEREFF}{Variable indicating whether super-efficiencies shall be estimated}
 
 \item{NONDISC_IN}{Vector containing indices of the input matrix that are non-discretionary variables}
 
@@ -58,7 +58,7 @@ binding parameters in the weight restrictions (mus)
 \description{
 Hyperbolic DEA implementation including weight restrictions,
 non-discretionary variables, gerenralized distance function, external referencing, estimation of slacks and
-superefficiency scores. The mathematical and theoretical foundations of the code are presented in the paper
+super-efficiency scores. The mathematical and theoretical foundations of the code are presented in the paper
 "Data Envelopment Analysis and Hyperbolic Efficiency Measures: Extending Applications and Possiblities
 for Between-Group Comparisons" (2023) by Alexander Öttl, Mette Asmild, and Daniel Gulde.
 }

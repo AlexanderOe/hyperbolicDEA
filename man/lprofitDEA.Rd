@@ -39,5 +39,5 @@ max_prof_lin<- lprofitDEA(X,Y,pX,pY)
 
 }
 \seealso{
-[Benchmakring::revenue.opt] for a similar function
+[Benchmakring::profit.opt] for a similar function
 }

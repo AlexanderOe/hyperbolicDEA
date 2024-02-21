@@ -41,9 +41,9 @@
 #'
 #' @export
 
-hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
+hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
                            ACCURACY = 1.0e-10, XREF = NULL, YREF = NULL,
-                           SUPEREFF = F, NONDISC_IN = NULL, NONDISC_OUT = NULL,
+                           SUPEREFF = FALSE, NONDISC_IN = NULL, NONDISC_OUT = NULL,
                            PARALLEL = 1, ALPHA = 0.5){
 
   # Check arguments given by user
@@ -73,13 +73,13 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
   }
 
   # Variable for if condition in SLACK estimation
-  XREF_YREF <- F
+  XREF_YREF <- FALSE
 
   # scaling adjustments
   # and referring X and Y to XREF and YREF as well as matrix definition
   if (is.null(XREF)&&is.null(YREF)){
 
-    scaled_values <- scale(rbind(cbind(Y,X),WR), center = F)
+    scaled_values <- scale(rbind(cbind(Y,X),WR), center = FALSE)
     Y <- as.matrix(scaled_values[1:nrow(X),1:ncol(Y)])
     X <- as.matrix(scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
     if (!is.null(WR)){
@@ -109,8 +109,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=F,
     }
 
     # equal scaling of XREF YREF and Y and X
-    XREF_YREF <- T
-    scaled_values <- scale(rbind(cbind(rbind(Y,YREF),rbind(X,XREF)), WR) , center = F)
+    XREF_YREF <- TRUE
+    scaled_values <- scale(rbind(cbind(rbind(Y,YREF),rbind(X,XREF)), WR) , center = FALSE)
     Y <- as.matrix(scaled_values[1:nrow(X),1:ncol(Y)])
     X <-  as.matrix(scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
     YREF <- as.matrix(scaled_values[(nrow(X)+1):(nrow(X)+nrow(XREF)),1:ncol(Y)])
