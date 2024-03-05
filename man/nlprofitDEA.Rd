@@ -7,7 +7,7 @@
 nlprofitDEA(X, Y, pX, pY, RTS = "vrs")
 }
 \arguments{
-\item{X}{Matrix or dataframe with DMUS as rows and inputs as columns}
+\item{X}{Matrix or dataframe with DMUs as rows and inputs as columns}
 
 \item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
 
@@ -22,7 +22,8 @@ Therefore it mus have the same dimensions as Y.}
 \value{
 A list object containing optimal inputs and outputs, lambdas indicating
 the peers for optimal allocation and profitability score as the ratio of revenue
-over cost for optimal and observed allocation.
+over cost for optimal and observed allocation and a new profit efficiency score
+that accounts for simultanous adjusments in inputs and outputs.
 }
 \description{
 Non-linear profit DEA model optimizing the ratio of cost over revenue

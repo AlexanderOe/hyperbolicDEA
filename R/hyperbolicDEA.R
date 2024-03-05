@@ -6,26 +6,39 @@
 #' "Data Envelopment Analysis and Hyperbolic Efficiency Measures: Extending Applications and Possiblities
 #' for Between-Group Comparisons" (2023) by Alexander Öttl, Mette Asmild, and Daniel Gulde.
 #'
-#' @param X Matrix or dataframe with DMUS as rows and inputs as columns
+#' @param X Matrix or dataframe with DMUs as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs", "ndrs", "nirs", "fdh"
 #' @param WR Matrix with one row per homogeneous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)
-#' @param SLACK Variable indicating whether an additional estimation of slacks shall be performed
+#' @param SLACK Boolean variable indicating whether an additional estimation of slacks shall be performed when set to 'TRUE'.  
+#' Be aware that SLACK estimation can change the lambda values.
 #' @param ACCURACY Accuracy value for non-linear programmer
 #' @param XREF Matrix or dataframe with firms defining the technology as rows and inputs as columns
 #' @param YREF Matrix or dataframe with firms defining the technology as rows and outputs as columns
-#' @param SUPEREFF Variable indicating whether super-efficiencies shall be estimated
+#' @param SUPEREFF Boolean variable indicating whether super-efficiencies shall be estimated
 #' @param NONDISC_IN Vector containing indices of the input matrix that are non-discretionary variables
 #' @param NONDISC_OUT Vector containing indices of the output matrix that are non-discretionary variables
-#' @param PARALLEL Integer of amount of cores that should be used for estimation (Check availability of computer)
+#' @param PARALLEL Integer of amount of cores that should be used for parallel computing (Check availability of computer)
 #' @param ALPHA ALPHA can be chosen between [0,1]. It indicates the relative weights given to the distance function to
 #' both outputs and inputs when approaching the frontier. More weight on the input orientation is set by alpha < 0.5. Here,
 #' the input efficiency score is estimated in the package. To receive the corresponding output efficiency score, estimate: e^((1-alpha)/alpha).
 #' Vice versa for an output weighted model alpha > 0.5. The output efficiency is given and the input efficiency can
 #' be recovered with: e^(alpha/(1-alpha))
+#' 
 #'
-#' @return A list object containing efficiency scores, lambdas, and potentially slacks and
-#' binding parameters in the weight restrictions (mus)
+#' @return A list object containing the following information:
+#' \item{eff}{Are the estimated efficiency scores for the DMUs under observation stored 
+#' in a vector with the length nrow(X).}
+#' \item{lambdas}{Estimated values for the composition of the respective Benchmarks.
+#' The lambdas are stored in a matrix with the dimensions nrow(X) x nrow(X), where
+#' the row is the DMU under observation and the columns the peers used for the Benchmark.}
+#' \item{slacks}{If SLACK = TRUE, the slacks are estimated and stored in a matrix with the dimensions
+#' nrow(X) x (ncol(X) + ncol(Y)). Showing the Slack of each DMU (row) for each input and output
+#' (column).}
+#' \item{mus}{If WR != NULL, the estimated decision variables for the imposed weight restrictions
+#'  are stored in a matrix with the dimensions nrow(X) x nrow(WR), where the rows are the DMUs and 
+#'  columns the weight restrictions. If the values are positive, the WR is binding for the respective DMU.}
+#' 
 #'
 #' @examples
 #' X <- c(1,1,2,4,1.5,2,4,3)

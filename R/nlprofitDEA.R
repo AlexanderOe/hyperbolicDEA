@@ -4,7 +4,7 @@
 #' @seealso Julia package BenchmarkingEconomicEfficiency.jl and the function deaprofitability()
 #' for non-linear profit DEA model
 #'
-#' @param X Matrix or dataframe with DMUS as rows and inputs as columns
+#' @param X Matrix or dataframe with DMUs as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
 #' @param pX Matrix or dataframe with prices for each DMU and input.
 #' Therefore it mus have the same dimensions as X.
@@ -13,7 +13,8 @@
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs"
 #' @return A list object containing optimal inputs and outputs, lambdas indicating
 #' the peers for optimal allocation and profitability score as the ratio of revenue
-#' over cost for optimal and observed allocation.
+#' over cost for optimal and observed allocation and a new profit efficiency score
+#' that accounts for simultanous adjusments in inputs and outputs.
 #' @examples
 #' X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 #' Y <- matrix(c(1,1,1,1), ncol = 1)
@@ -195,9 +196,12 @@ nlprofitDEA <- function(X, Y, pX, pY, RTS = "vrs"){
   
   # Profitability efficiency
   profit_eff <- (rowSums(Y*pY)/rowSums(X*pX)) / (rowSums(pY*opt_value[,(ncol(X)+1):(ncol(X)+ncol(Y))])/rowSums(pX*opt_value[,1:ncol(X)]))
+  
+  profit_eff_new <- sqrt((rowSums(Y*pY)*rowSums(pX*opt_value[,1:ncol(X)]))/(rowSums(X*pX)*rowSums(pY*opt_value[,(ncol(X)+1):(ncol(X)+ncol(Y))])))
 
 
   # Return the results
-  return(list(lambdas = lambdas, opt_value = opt_value, profit_eff = profit_eff))
+  return(list(lambdas = lambdas, opt_value = opt_value, profit_eff = profit_eff, 
+              profit_eff_new = profit_eff_new))
 
 }

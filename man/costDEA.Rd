@@ -7,7 +7,7 @@
 costDEA(X, Y, pX, RTS = "vrs")
 }
 \arguments{
-\item{X}{Matrix or dataframe with DMUS as rows and inputs as columns}
+\item{X}{Matrix or dataframe with DMUs as rows and inputs as columns}
 
 \item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
 
@@ -17,8 +17,8 @@ Therefore it mus have the same dimensions as X.}
 \item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs"}
 }
 \value{
-A list object containing cost optimal inputs and lambdas indiceting
-the the peer for optimal input allocation. Additionally, it returns the cost 
+A list object containing cost optimal inputs and lambdas showing
+the peer for optimal input allocation. Additionally, it returns the cost 
 efficiency as the ratio of the optimal cost to the observed cost.
 }
 \description{
@@ -36,5 +36,5 @@ cost_eff_input <- costDEA(X,Y,pX)
 
 }
 \seealso{
-[Benchmakring::cost.opt] for a similar function
+[Benchmarking::cost.opt] for a similar function
 }

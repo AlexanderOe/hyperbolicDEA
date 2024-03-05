@@ -21,7 +21,7 @@ hyperbolicDEA(
 )
 }
 \arguments{
-\item{X}{Matrix or dataframe with DMUS as rows and inputs as columns}
+\item{X}{Matrix or dataframe with DMUs as rows and inputs as columns}
 
 \item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
 
@@ -29,7 +29,8 @@ hyperbolicDEA(
 
 \item{WR}{Matrix with one row per homogeneous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)}
 
-\item{SLACK}{Variable indicating whether an additional estimation of slacks shall be performed}
+\item{SLACK}{Boolean variable indicating whether an additional estimation of slacks shall be performed when set to 'TRUE'.
+Be aware that SLACK estimation can change the lambda values.}
 
 \item{ACCURACY}{Accuracy value for non-linear programmer}
 
@@ -37,13 +38,13 @@ hyperbolicDEA(
 
 \item{YREF}{Matrix or dataframe with firms defining the technology as rows and outputs as columns}
 
-\item{SUPEREFF}{Variable indicating whether super-efficiencies shall be estimated}
+\item{SUPEREFF}{Boolean variable indicating whether super-efficiencies shall be estimated}
 
 \item{NONDISC_IN}{Vector containing indices of the input matrix that are non-discretionary variables}
 
 \item{NONDISC_OUT}{Vector containing indices of the output matrix that are non-discretionary variables}
 
-\item{PARALLEL}{Integer of amount of cores that should be used for estimation (Check availability of computer)}
+\item{PARALLEL}{Integer of amount of cores that should be used for parallel computing (Check availability of computer)}
 
 \item{ALPHA}{ALPHA can be chosen between [0,1]. It indicates the relative weights given to the distance function to
 both outputs and inputs when approaching the frontier. More weight on the input orientation is set by alpha < 0.5. Here,
@@ -52,8 +53,18 @@ Vice versa for an output weighted model alpha > 0.5. The output efficiency is gi
 be recovered with: e^(alpha/(1-alpha))}
 }
 \value{
-A list object containing efficiency scores, lambdas, and potentially slacks and
-binding parameters in the weight restrictions (mus)
+A list object containing the following information:
+\item{eff}{Are the estimated efficiency scores for the DMUs under observation stored 
+in a vector with the length nrow(X).}
+\item{lambdas}{Estimated values for the composition of the respective Benchmarks.
+The lambdas are stored in a matrix with the dimensions nrow(X) x nrow(X), where
+the row is the DMU under observation and the columns the peers used for the Benchmark.}
+\item{slacks}{If SLACK = TRUE, the slacks are estimated and stored in a matrix with the dimensions
+nrow(X) x (ncol(X) + ncol(Y)). Showing the Slack of each DMU (row) for each input and output
+(column).}
+\item{mus}{If WR != NULL, the estimated decision variables for the imposed weight restrictions
+ are stored in a matrix with the dimensions nrow(X) x nrow(WR), where the rows are the DMUs and 
+ columns the weight restrictions. If the values are positive, the WR is binding for the respective DMU.}
 }
 \description{
 Hyperbolic DEA implementation including weight restrictions,

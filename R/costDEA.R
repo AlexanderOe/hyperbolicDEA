@@ -2,15 +2,15 @@
 #' @description Cost DEA model optimizing the input allocation with given prices.
 #' It returns the estimated lambdas as well as the optimal values for inputs.
 #' 
-#' @seealso [Benchmakring::cost.opt] for a similar function
+#' @seealso [Benchmarking::cost.opt] for a similar function
 #'
-#' @param X Matrix or dataframe with DMUS as rows and inputs as columns
+#' @param X Matrix or dataframe with DMUs as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
 #' @param pX Matrix or dataframe with prices for each DMU and input.
 #' Therefore it mus have the same dimensions as X.
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs"
-#' @return A list object containing cost optimal inputs and lambdas indiceting
-#' the the peer for optimal input allocation. Additionally, it returns the cost 
+#' @return A list object containing cost optimal inputs and lambdas showing
+#' the peer for optimal input allocation. Additionally, it returns the cost 
 #' efficiency as the ratio of the optimal cost to the observed cost.
 #' @examples
 #' X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
