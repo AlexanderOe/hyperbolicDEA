@@ -9,10 +9,12 @@
 #' @param X Matrix or dataframe with DMUs as rows and inputs as columns
 #' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs", "ndrs", "nirs", "fdh"
-#' @param WR Matrix with one row per homogeneous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)
+#' @param WR Matrix with one row per homogeneous linear weight restriction in standard form. The columns are 
+#' ncol(WR) = ncol(Y) + ncol(X). Hence the first ncol(Y) columns are the restrictions on outputs and the last ncol(X) columns are the 
+#' restrictions on inputs. 
 #' @param SLACK Boolean variable indicating whether an additional estimation of slacks shall be performed when set to 'TRUE'.  
 #' Be aware that SLACK estimation can change the lambda values.
-#' @param ACCURACY Accuracy value for non-linear programmer
+#' @param ACCURACY Accuracy value for non-linear programm solver.
 #' @param XREF Matrix or dataframe with firms defining the technology as rows and inputs as columns
 #' @param YREF Matrix or dataframe with firms defining the technology as rows and outputs as columns
 #' @param SUPEREFF Boolean variable indicating whether super-efficiencies shall be estimated

@@ -195,4 +195,59 @@ test_that("nlprofitDEA", {
   
 })
 
+test_that("deaWR general test", {
+  
+  X <- matrix(c(1, 2, 3, 3, 6, 7, 8, 2, 1, 2), ncol = 2)
+  Y <- matrix(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3), ncol = 2)
+  
+  for (RTS in c("vrs", "crs", "fdh")) {
+    for (ORIENTATION in c("in", "out")) {
+      AO_dea <- deaWR(X, Y, RTS = RTS, ORIENTATION = ORIENTATION)
+      BO_dea <- Benchmarking::dea(X,Y,RTS = RTS, ORIENTATION = ORIENTATION)
+      expect_equal(AO_dea$eff, BO_dea$eff)
+    }
+  }
+  
+  AO_dea_ndrs <- deaWR(X, Y, RTS = "ndrs", ORIENTATION = "in")
+  BO_dea_irs <- Benchmarking::dea(X,Y,RTS = "irs", ORIENTATION = "in")
+  expect_equal(AO_dea_ndrs$eff, BO_dea_irs$eff)
+  
+  AO_dea_nirs <- deaWR(X, Y, RTS = "nirs", ORIENTATION = "in")
+  BO_dea_drs <- Benchmarking::dea(X,Y,RTS = "drs", ORIENTATION = "in")
+  expect_equal(AO_dea_nirs$eff, BO_dea_drs$eff)
+  
+  AO_dea_ndrs <- deaWR(X, Y, RTS = "ndrs", ORIENTATION = "out")
+  BO_dea_irs <- Benchmarking::dea(X,Y,RTS = "irs", ORIENTATION = "out")
+  expect_equal(AO_dea_ndrs$eff, BO_dea_irs$eff)
+  
+  AO_dea_nirs <- deaWR(X, Y, RTS = "nirs", ORIENTATION = "out")
+  BO_dea_drs <- Benchmarking::dea(X,Y,RTS = "drs", ORIENTATION = "out")
+  expect_equal(AO_dea_nirs$eff, BO_dea_drs$eff)
+  
+  AO_dea_supereff <- deaWR(X, Y, RTS = "vrs", ORIENTATION = "in", SUPEREFF = TRUE)
+  BO_dea_supereff <- Benchmarking::sdea(X,Y,RTS = "vrs", ORIENTATION = "in")
+  expect_equal(AO_dea_supereff$eff[AO_dea_supereff$eff > 0 & !is.infinite(AO_dea_supereff$eff)], 
+               BO_dea_supereff$eff[BO_dea_supereff$eff > 0 & !is.infinite(BO_dea_supereff$eff)])
+  
+  
+})
+
+test_that("XREF YREF test", {
+  
+  X <- matrix(c(1, 2, 3, 3, 6, 7, 8, 2, 1, 2), ncol = 2)
+  Y <- matrix(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3), ncol = 2)
+  
+  XREF <- matrix(c(6, 7, 5, 5, 8, 4, 8, 5), ncol = 2)
+  YREF <- matrix(c(1, 4, 5, 3, 10, 4, 2, 2), ncol = 2)
+  
+  AO_dea <- deaWR(X, Y, XREF = XREF, YREF = YREF, ORIENTATION = "in", RTS = "vrs")
+  BO_dea <- Benchmarking::dea(X,Y, XREF = XREF, YREF = YREF, ORIENTATION = "in", RTS = "vrs")
+  AO_hyp <- hyperbolicDEA(X, Y, XREF = XREF, YREF = YREF, ALPHA = 0, RTS = "vrs")
+  
+  expect_equal(AO_dea$eff, BO_dea$eff)
+  expect_equal(AO_hyp$eff, AO_dea$eff)
+})
+
+
+
 
