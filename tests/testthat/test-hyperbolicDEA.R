@@ -176,35 +176,35 @@ test_that("lprofitDEA", {
   input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
   output_prices <- matrix(c(1,1,1,1), ncol = 1)
   
-  max_profit <- lprofitDEA(X,Y,input_prices, output_prices, RTS = "crs")
-  BO_revenue <- Benchmarking::profit.opt(X,Y,input_prices, output_prices, RTS = "crs")
+  max_lprofit <- lprofitDEA(X,Y,input_prices, output_prices, RTS = "crs")
+  BO_profit <- Benchmarking::profit.opt(X,Y,input_prices, output_prices, RTS = "crs")
   
-  expect_equal(all.equal(as.matrix(max_profit$opt_value), 
-                         as.matrix(cbind(BO_revenue$xopt, BO_revenue$yopt)), 
+  expect_equal(all.equal(as.matrix(max_lprofit$opt_value), 
+                         as.matrix(cbind(BO_profit$xopt, BO_profit$yopt)), 
                                    check.attributes = FALSE), TRUE)
   
-  expect_equal(all.equal(as.matrix(max_profit$lambdas), 
-                         as.matrix(BO_revenue$lambda), check.attributes = FALSE), TRUE)
+  expect_equal(all.equal(as.matrix(max_lprofit$lambdas), 
+                         as.matrix(BO_profit$lambda), check.attributes = FALSE), TRUE)
   
 })
 
 test_that("nlprofitDEA", {
   
   X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
-  Y <- matrix(c(1,1,1,1), ncol = 1)
+  Y <- matrix(c(10,10,10,10), ncol = 1)
   
   input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
-  output_prices <- matrix(c(1,1,1,1), ncol = 1)
+  output_prices <- matrix(c(2,2,2,2), ncol = 1)
   
-  max_profit <- nlprofitDEA(X,Y,input_prices, output_prices)
-  BO_revenue <- Benchmarking::profit.opt(X,Y,input_prices, output_prices)
+  max_nlprofit <- nlprofitDEA(X,Y,input_prices, output_prices, RTS = "vrs")
+  BO_profit2 <- Benchmarking::profit.opt(X,Y,input_prices, output_prices, RTS = "vrs")
   
-  expect_equal(all.equal(as.matrix(max_profit$opt_value), 
-                         as.matrix(cbind(BO_revenue$xopt, BO_revenue$yopt)), 
+  expect_equal(all.equal(as.matrix(max_nlprofit$opt_value), 
+                         as.matrix(cbind(BO_profit2$xopt, BO_profit2$yopt)), 
                          check.attributes = FALSE), TRUE)
   
-  expect_equal(all.equal(as.matrix(max_profit$lambdas), 
-                         as.matrix(BO_revenue$lambda), check.attributes = FALSE), TRUE)
+  expect_equal(all.equal(as.matrix(max_nlprofit$lambdas), 
+                         as.matrix(BO_profit2$lambda), check.attributes = FALSE), TRUE)
   
 })
 

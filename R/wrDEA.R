@@ -190,11 +190,10 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     variables <- get.variables(dea_model)
     if (!is.null(WR)){
       mu <- rbind(mu, variables[(nrow(XREF)+1):(nrow(XREF)+nrow(WR))])
-      eff <- c(eff, variables[(nrow(XREF)+nrow(WR)+1)])
     } else {
       mu <- NULL
-      eff <- c(eff, variables[(ncol(in_out_data)+1)])
     }
+    eff <- c(eff, variables[(ncol(in_out_data)+1)])
     lambdas <- rbind(lambdas, variables[1:nrow(XREF)])
   }
   
