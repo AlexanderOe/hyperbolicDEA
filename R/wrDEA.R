@@ -35,7 +35,7 @@
 #'
 #' @export
 
-deaWR<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
+wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
                  XREF = NULL, YREF = NULL, SUPEREFF = FALSE) {
   
   # Check arguments given by user 
@@ -116,7 +116,8 @@ deaWR<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     
     # Change data for superefficiency
     if (SUPEREFF){
-      in_out_data <- supereff_dat[,-i]
+      in_out_data <- supereff_dat
+      in_out_data[,i] <- 0
     }
     
     # Create the linear programming problem
@@ -163,23 +164,23 @@ deaWR<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     
     # Set RTS assumption
     if (RTS == "vrs") {
-      add.constraint(dea_model, c(rep(1, ncol(in_out_data))), 
-                     indices = c(1:ncol(in_out_data)), "=", 1)
-      set.bounds(dea_model, upper = c(rep(1,(ncol(in_out_data)))), columns = c(1:ncol(in_out_data)))
+      add.constraint(dea_model, c(rep(1, nrow(XREF))), 
+                     indices = c(1:nrow(XREF)), "=", 1)
+      set.bounds(dea_model, upper = c(rep(1,(nrow(XREF)))), columns = c(1:nrow(XREF)))
     }
     if (RTS == "ndrs") {
-      add.constraint(dea_model, c(rep(1, ncol(in_out_data))), 
-                     indices = c(1:ncol(in_out_data)), ">=", 1)
+      add.constraint(dea_model, c(rep(1, nrow(XREF))), 
+                     indices = c(1:nrow(XREF)), ">=", 1)
     }
     if (RTS == "nirs") {
-      add.constraint(dea_model, c(rep(1, ncol(in_out_data))), 
-                     indices = c(1:ncol(in_out_data)), "<=", 1)
+      add.constraint(dea_model, c(rep(1, nrow(XREF))), 
+                     indices = c(1:nrow(XREF)), "<=", 1)
     }
     if (RTS == "fdh") {
-      add.constraint(dea_model, c(rep(1, ncol(in_out_data))), 
-                     indices = c(1:ncol(in_out_data)), "=", 1)
-      set.bounds(dea_model, upper = c(rep(1,(ncol(in_out_data)))), columns = c(1:ncol(in_out_data)))
-      set.type(dea_model, columns = c(1:ncol(in_out_data)), type = "binary")
+      add.constraint(dea_model, c(rep(1, nrow(XREF))), 
+                     indices = c(1:nrow(XREF)), "=", 1)
+      set.bounds(dea_model, upper = c(rep(1,(nrow(XREF)))), columns = c(1:nrow(XREF)))
+      set.type(dea_model, columns = c(1:nrow(XREF)), type = "binary")
     }
     
     # Solve the linear programming problem
@@ -188,29 +189,24 @@ deaWR<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     # Get the optimal solution and store results in a data frame
     variables <- get.variables(dea_model)
     if (!is.null(WR)){
-      lambdas <- rbind(lambdas, variables[1:nrow(XREF)])
       mu <- rbind(mu, variables[(nrow(XREF)+1):(nrow(XREF)+nrow(WR))])
       eff <- c(eff, variables[(nrow(XREF)+nrow(WR)+1)])
     } else {
-      if (SUPEREFF){
-        lambdas <- rbind(lambdas, append(variables[1:ncol(in_out_data)], NA, after = i-1))
-      } else {
-        lambdas <- rbind(lambdas, variables[1:ncol(in_out_data)])
-      }  
-      eff <- c(eff, variables[(ncol(in_out_data)+1)])
       mu <- NULL
+      eff <- c(eff, variables[(ncol(in_out_data)+1)])
     }
+    lambdas <- rbind(lambdas, variables[1:nrow(XREF)])
   }
   
   # Add column names
   colnames(lambdas) <- c(paste("L",1:nrow(XREF),sep=""))
   
   if (!is.null(WR)){
-    colnames(mu) <- c(paste("WR",1:nrow(WR),sep=""))
+    colnames(mu) <- c(paste("MU",1:nrow(WR),sep=""))
   }
   
   # Return the results
-  return(list(lambdas = lambdas, mu = mu, eff = eff))
+  return(list(lambda = lambdas, mus = mu, eff = eff))
 
 }
 

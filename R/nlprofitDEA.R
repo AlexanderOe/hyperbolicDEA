@@ -28,7 +28,7 @@
 #' @export
 
 
-nlprofitDEA <- function(X, Y, pX, pY, RTS = "vrs"){
+nlprofitDEA <- function(X, Y, pX, pY, RTS = "crs"){
 
   # Check arguments given by user
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -191,7 +191,7 @@ nlprofitDEA <- function(X, Y, pX, pY, RTS = "vrs"){
   }
 
   # Add column names
-  colnames(lambdas) <- c(paste("Lambda",1:nrow(X),sep=""))
+  colnames(lambdas) <- c(paste("L",1:nrow(X),sep=""))
   colnames(opt_value) <- c(paste("X",1:ncol(X),sep=""), paste("Y",1:ncol(Y),sep=""))
   
   # Profitability efficiency

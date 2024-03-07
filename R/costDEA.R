@@ -24,7 +24,7 @@
 #' @import lpSolveAPI
 #' @export
 
-costDEA <- function(X, Y, pX, RTS = "vrs") {
+costDEA <- function(X, Y, pX, RTS = "crs") {
   
   # Check arguments given by user 
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -112,7 +112,7 @@ costDEA <- function(X, Y, pX, RTS = "vrs") {
     
   }
   
-  colnames(lambdas) <- c(paste("Lambda",1:ncol(in_out_data),sep=""))
+  colnames(lambdas) <- c(paste("L",1:ncol(in_out_data),sep=""))
   colnames(opt_value) <- c(paste("X",1:ncol(X),sep=""))
   
   # Estimate cost efficiency
