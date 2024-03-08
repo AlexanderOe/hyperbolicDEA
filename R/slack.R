@@ -6,12 +6,17 @@ slack <- function(X, Y, RTS, ALPHA, EFF, XREF, YREF, WR = NULL){
   if (!is.null(WR)){
     # first outputs then inputs to fit the WR standard form
     in_out_data <- cbind(rbind(t(YREF), t(XREF)),t(WR))
+    print(in_out_data)
     
   } else {
     # Change data structure to add columns
     in_out_data <- rbind(t(YREF), t(XREF))
   }
   
+  # storage for results
+  lambdas <- data.frame()
+  mu <- data.frame()
+  slack <- data.frame()
   
   for (i in 1:nrow(X)) {
     # Create the linear programming problem
@@ -29,22 +34,25 @@ slack <- function(X, Y, RTS, ALPHA, EFF, XREF, YREF, WR = NULL){
     # Add decision variable for output slack in separate columns
     for (j in 1:ncol(Y)){
       column <- c(rep(0, nrow(in_out_data)))
-      column[j+ncol(X)] <- -1
-      set.column(slack_model, nrow(XREF)+j, column)
+      column[j] <- -1
+      set.column(slack_model, ncol(in_out_data)+j, column)
     }
     
     # Add decision variable for input slack in separate columns
     for (j in 1:ncol(X)){
       column <- c(rep(0, nrow(in_out_data)))
       column[j+ncol(Y)] <- 1
-      set.column(slack_model, nrow(XREF)+ncol(Y)+j, column)
+      set.column(slack_model, ncol(in_out_data)+ncol(Y)+j, column)
     }
     
     # set objective function only slack decision variables
-    set.objfn(slack_model, c(rep(0,nrow(XREF)),rep(1,ncol(X)+ncol(Y))))
+    set.objfn(slack_model, c(rep(0,ncol(in_out_data)),rep(1,ncol(X)+ncol(Y))))
     
     # Set constraint-types
     set.constr.type(slack_model, c(rep("=", nrow(in_out_data))))
+    
+    # Set the right-hand side of the constraints
+    set.rhs(slack_model, c(Y[i,]/(EFF[i]^ALPHA), X[i,]*(EFF[i]^(1-ALPHA))))
     
     # Set the lower bounds of the decision variables
     set.bounds(slack_model, lower = c(rep(0,(ncol(in_out_data)+nrow(in_out_data)))))
@@ -83,6 +91,9 @@ slack <- function(X, Y, RTS, ALPHA, EFF, XREF, YREF, WR = NULL){
     slack <- rbind(slack, variables[(ncol(in_out_data)+1):(ncol(in_out_data)+nrow(in_out_data))])
     lambdas <- rbind(lambdas, variables[1:nrow(XREF)])
   }
+  
+  # Add column names
+  colnames(slack) <- c(paste("Sy",1:ncol(Y),sep=""), paste("Sx",1:ncol(X),sep=""))
   
   # Return the results
   return(list(mu = mu, slack = slack, lambdas = lambdas))

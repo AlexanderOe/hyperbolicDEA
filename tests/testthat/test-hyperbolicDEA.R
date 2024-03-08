@@ -89,6 +89,21 @@ test_that("SLACK", {
   logic_vec <- unname(logic_vec)
 
   expect_equal(logic_vec, eff$slack)
+  
+
+  X <- matrix(c(1,1,2,4,1.5,4,
+                2,4,1,1,4,1.5), ncol = 2)
+  Y <- c(1,1,1,1,1,1)
+  
+  Y <- as.matrix(Y)
+  
+  wr_dea <- wrDEA(X,Y, RTS = "crs", ORIENTATION = "in", SLACK = TRUE)
+  
+  print(wr_dea$slack)
+  print(wr_dea$eff)
+  print(wr_dea$lambda)
+  print(wr_dea$mus)
+  
 })
 
 test_that("fdh", {

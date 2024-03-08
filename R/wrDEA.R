@@ -1,4 +1,4 @@
-#' @title Estimation of DEA efficiency scores with linear input or output orientation
+#' @title Estimation of DEA efficiency scores with linear input or output orientation and trade-off weight restrictions
 #'
 #' @description Linear DEA estimation including the possibility of trade-off weight restrictions,
 #' external referencing, and super-efficiency scores. 
@@ -36,7 +36,7 @@
 #' @export
 
 wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
-                 XREF = NULL, YREF = NULL, SUPEREFF = FALSE) {
+                 XREF = NULL, YREF = NULL, SUPEREFF = FALSE, SLACK = FALSE) {
   
   # Check arguments given by user 
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -197,6 +197,21 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     lambdas <- rbind(lambdas, variables[1:nrow(XREF)])
   }
   
+  if (SLACK){
+    # use slack function from other file 
+    if (ORIENTATION == "in") {
+      slack_est <- slack(X = X, Y = Y, XREF = XREF, YREF = YREF, RTS = RTS, EFF = eff, ALPHA = 0, WR = WR)
+    } else {
+      slack_est <- slack(X = X, Y = Y, XREF = XREF, YREF = YREF, RTS = RTS, EFF = eff, ALPHA = 1, WR = WR)
+    }
+    mu <- slack_est$mu
+    lambdas <- slack_est$lambda
+    slack_results <- slack_est$slack
+  } else {
+    slack_results <- NULL
+  }
+  
+  
   # Add column names
   colnames(lambdas) <- c(paste("L",1:nrow(XREF),sep=""))
   
@@ -205,7 +220,7 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
   }
   
   # Return the results
-  return(list(lambda = lambdas, mus = mu, eff = eff))
+  return(list(lambda = lambdas, mus = mu, eff = eff, slack = slack_results))
 
 }
 
