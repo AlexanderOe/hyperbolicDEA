@@ -234,7 +234,11 @@ test_that("wrDEA general test", {
     for (ORIENTATION in c("in", "out")) {
       AO_dea <- wrDEA(X, Y, RTS = RTS, ORIENTATION = ORIENTATION)
       BO_dea <- Benchmarking::dea(X,Y,RTS = RTS, ORIENTATION = ORIENTATION)
-      expect_equal(AO_dea$eff, BO_dea$eff)
+      if (ORIENTATION == "in") {
+        expect_equal(AO_dea$eff, BO_dea$eff)
+      } else {
+        expect_equal(AO_dea$eff, 1/BO_dea$eff)
+      }
     }
   }
   
@@ -248,11 +252,11 @@ test_that("wrDEA general test", {
   
   AO_dea_ndrs <- wrDEA(X, Y, RTS = "ndrs", ORIENTATION = "out")
   BO_dea_irs <- Benchmarking::dea(X,Y,RTS = "irs", ORIENTATION = "out")
-  expect_equal(AO_dea_ndrs$eff, BO_dea_irs$eff)
+  expect_equal(AO_dea_ndrs$eff, 1/BO_dea_irs$eff)
   
   AO_dea_nirs <- wrDEA(X, Y, RTS = "nirs", ORIENTATION = "out")
   BO_dea_drs <- Benchmarking::dea(X,Y,RTS = "drs", ORIENTATION = "out")
-  expect_equal(AO_dea_nirs$eff, BO_dea_drs$eff)
+  expect_equal(AO_dea_nirs$eff, 1/BO_dea_drs$eff)
   
   AO_dea_supereff <- wrDEA(X, Y, RTS = "vrs", ORIENTATION = "in", SUPEREFF = TRUE)
   BO_dea_supereff <- Benchmarking::sdea(X,Y,RTS = "vrs", ORIENTATION = "in")

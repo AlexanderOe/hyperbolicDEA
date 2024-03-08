@@ -208,7 +208,11 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     } else {
       mu <- NULL
     }
-    eff <- c(eff, variables[(ncol(in_out_data)+1)])
+    if (ORIENTATION == "in") {
+      eff <- c(eff, variables[(ncol(in_out_data)+1)])
+    } else {
+      eff <- c(eff, 1/variables[(ncol(in_out_data)+1)])
+    }
     lambdas <- rbind(lambdas, variables[1:nrow(XREF)])
   }
   
