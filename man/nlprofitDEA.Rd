@@ -4,29 +4,30 @@
 \alias{nlprofitDEA}
 \title{Non-linear profit DEA model}
 \usage{
-nlprofitDEA(X, Y, pX, pY, RTS = "vrs")
+nlprofitDEA(X, Y, pX, pY, RTS = "crs")
 }
 \arguments{
-\item{X}{Matrix or dataframe with DMUs as rows and inputs as columns}
+\item{X}{Vector, matrix or dataframe with DMUs as rows and inputs as columns.}
 
-\item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
+\item{Y}{Vector, matrix or dataframe with DMUs as rows and outputs as columns.}
 
-\item{pX}{Matrix or dataframe with prices for each DMU and input.
-Therefore it mus have the same dimensions as X.}
+\item{pX}{Vector, matrix or dataframe with prices for each DMU and input. It must have the same dimensions as X.}
 
-\item{pY}{Matrix or dataframe with prices for each DMU and output.
-Therefore it mus have the same dimensions as Y.}
+\item{pY}{Vector, matrix or dataframe with prices for each DMU and output. It must have the same dimensions as Y.}
 
-\item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs"}
+\item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs".}
 }
 \value{
-A list object containing optimal inputs and outputs, lambdas indicating
-the peers for optimal allocation and profitability score as the ratio of revenue
-over cost for optimal and observed allocation and a new profit efficiency score
-that accounts for simultanous adjusments in inputs and outputs.
+A list object containing the following:
+\item{lambdas}{Estimated values for the composition of the respective Benchmarks. The lambdas are stored in a matrix with dimensions nrow(X) x nrow(X), where the row is the DMU under observation and the columns are the peers used for the Benchmark.}
+\item{opt_value}{Optimal inputs and outputs.}
+\item{profit_eff}{New profit efficiency score that accounts for simultaneous adjustments in inputs and outputs.}
 }
 \description{
-Non-linear profit DEA model optimizing the ratio of cost over revenue
+This function implements a non-linear profit DEA model that optimizes the ratio of cost 
+over revenue given the prices for a DMU. It returns the estimated lambdas, optimal values for inputs and outputs, 
+and a profit efficiency score. The profit efficiency score is calculated as the square root of the ratio of the 
+observed revenue-cost ratio to the optimal revenue-cost ratio.
 }
 \examples{
 X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
@@ -35,10 +36,9 @@ Y <- matrix(c(1,1,1,1), ncol = 1)
 pX <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
 pY <- matrix(c(1,1,1,1), ncol = 1)
 
-max_prof_nolin<- nlprofitDEA(X,Y,pX,pY)
+max_prof_nolin <- nlprofitDEA(X,Y,pX,pY)
 
 }
 \seealso{
-Julia package BenchmarkingEconomicEfficiency.jl and the function deaprofitability()
-for non-linear profit DEA model
+`deaprofitability()` function in the Julia package BenchmarkingEconomicEfficiency.jl.
 }

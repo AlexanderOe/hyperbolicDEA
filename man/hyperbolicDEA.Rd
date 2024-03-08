@@ -21,28 +21,30 @@ hyperbolicDEA(
 )
 }
 \arguments{
-\item{X}{Matrix or dataframe with DMUs as rows and inputs as columns}
+\item{X}{Vector, matrix or dataframe with DMUs as rows and inputs as columns}
 
-\item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
+\item{Y}{Vecotr, matrix or dataframe with DMUs as rows and outputs as columns}
 
 \item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs", "ndrs", "nirs", "fdh"}
 
-\item{WR}{Matrix with one row per homogeneous linear weight restriction in standard form, ncol(WR) = ncol(X) + ncol(Y)}
+\item{WR}{Matrix with one row per homogeneous linear weight restriction in standard form. The columns are 
+ncol(WR) = ncol(Y) + ncol(X). Hence the first ncol(Y) columns are the restrictions on outputs and the last ncol(X) columns are the 
+restrictions on inputs.}
 
 \item{SLACK}{Boolean variable indicating whether an additional estimation of slacks shall be performed when set to 'TRUE'.
 Be aware that SLACK estimation can change the lambda values.}
 
-\item{ACCURACY}{Accuracy value for non-linear programmer}
+\item{ACCURACY}{Accuracy value for non-linear programm solver.}
 
-\item{XREF}{Matrix or dataframe with firms defining the technology as rows and inputs as columns}
+\item{XREF}{Vector, matrix or dataframe with firms defining the technology as rows and inputs as columns}
 
-\item{YREF}{Matrix or dataframe with firms defining the technology as rows and outputs as columns}
+\item{YREF}{Vector, matrix or dataframe with firms defining the technology as rows and outputs as columns}
 
 \item{SUPEREFF}{Boolean variable indicating whether super-efficiencies shall be estimated}
 
-\item{NONDISC_IN}{Vector containing indices of the input matrix that are non-discretionary variables}
+\item{NONDISC_IN}{Vector containing column indices of the input matrix that are non-discretionary variables e.g. c(1,3) so the first and the third input are non-discretionary}
 
-\item{NONDISC_OUT}{Vector containing indices of the output matrix that are non-discretionary variables}
+\item{NONDISC_OUT}{Vector containing column indices of the output matrix that are non-discretionary variables e.g. c(1,3) so the first and the third output are non-discretionary}
 
 \item{PARALLEL}{Integer of amount of cores that should be used for parallel computing (Check availability of computer)}
 
@@ -59,12 +61,12 @@ in a vector with the length nrow(X).}
 \item{lambdas}{Estimated values for the composition of the respective Benchmarks.
 The lambdas are stored in a matrix with the dimensions nrow(X) x nrow(X), where
 the row is the DMU under observation and the columns the peers used for the Benchmark.}
-\item{slacks}{If SLACK = TRUE, the slacks are estimated and stored in a matrix with the dimensions
-nrow(X) x (ncol(X) + ncol(Y)). Showing the Slack of each DMU (row) for each input and output
-(column).}
 \item{mus}{If WR != NULL, the estimated decision variables for the imposed weight restrictions
  are stored in a matrix with the dimensions nrow(X) x nrow(WR), where the rows are the DMUs and 
  columns the weight restrictions. If the values are positive, the WR is binding for the respective DMU.}
+\item{slack}{If SLACK = TRUE, the slacks are estimated and stored in a matrix with the dimensions
+nrow(X) x (ncol(X) + ncol(Y)). Showing the Slack of each DMU (row) for each input and output
+(column).}
 }
 \description{
 Hyperbolic DEA implementation including weight restrictions,
@@ -76,6 +78,16 @@ for Between-Group Comparisons" (2023) by Alexander Öttl, Mette Asmild, and Dani
 \examples{
 X <- c(1,1,2,4,1.5,2,4,3)
 Y <- c(1,2,4,4,0.5,2.5,3.5,4)
-hyperbolicDEA(X,Y,RTS="vrs", SUPEREFF = FALSE)
+# we now impose linked weght restrictions. We assume outputs decrease by 
+# two units when inputs are reduced by one. And we assume that outputs can
+# can be increased by one when inputs are increased by two. 
+
+WR <- matrix(c(-2,-1,1,2), nrow = 2, byrow = TRUE)
+hyperbolicDEA(X,Y,RTS="vrs", WR = WR)
+
+# Another example having the same data but just estimate the results for DMU 1
+# using XREF YREF and and a higher focus on inputs adjusting the ALPHA towards 0
+
+hyperbolicDEA(X[1],Y[1],RTS="vrs", XREF = X, YREF = Y, WR = WR, ALPHA = 0.1)
 
 }

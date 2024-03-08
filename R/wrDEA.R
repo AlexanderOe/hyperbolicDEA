@@ -1,19 +1,22 @@
 #' @title Estimation of DEA efficiency scores with linear input or output orientation and trade-off weight restrictions
 #'
 #' @description Linear DEA estimation including the possibility of trade-off weight restrictions,
-#' external referencing, and super-efficiency scores. 
+#' external referencing, and super-efficiency scores. Furthermore, in a second stage slacks can be estimated.
+#' The function returns efficiency scores and adjusted lambdas according to the imposed weight restrictions and slack estimation. Additionally, 
+#' mus are returned if weight restrictions are imposed that highlight binding restrictions for DMUs and the absolute slack values 
+#' if slack-based estimation is applied.
 #'
-#' @param X Matrix or dataframe with DMUs as rows and inputs as columns
-#' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
+#' @param X Vector, matrix or dataframe with DMUs as rows and inputs as columns
+#' @param Y Vector, matrix or dataframe with DMUs as rows and outputs as columns
 #' @param ORIENTATION Character string indicating the orientation of the DEA model, e.g. "in", "out"
 #' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs", "ndrs", "nirs", "fdh"
 #' @param WR Matrix with one row per homogeneous linear weight restriction in standard form. The columns are 
 #' ncol(WR) = ncol(Y) + ncol(X). Hence the first ncol(Y) columns are the restrictions on outputs and the last ncol(X) columns are the 
 #' restrictions on inputs. 
-#' @param XREF Matrix or dataframe with firms defining the technology as rows and inputs as columns
-#' @param YREF Matrix or dataframe with firms defining the technology as rows and outputs as columns
+#' @param XREF Vector, matrix or dataframe with firms defining the technology as rows and inputs as columns
+#' @param YREF Vector, matrix or dataframe with firms defining the technology as rows and outputs as columns
 #' @param SUPEREFF Boolean variable indicating whether super-efficiencies shall be estimated
-#' 
+#' @param SLACK Boolean variable indicating whether slack-based estimation should be applied
 #'
 #' @return A list object containing the following information:
 #' \item{eff}{Are the estimated efficiency scores for the DMUs under observation stored 
@@ -21,19 +24,31 @@
 #' \item{lambdas}{Estimated values for the composition of the respective Benchmarks.
 #' The lambdas are stored in a matrix with the dimensions nrow(X) x nrow(X), where
 #' the row is the DMU under observation and the columns the peers used for the Benchmark.}
-#' \item{mu}{If WR != NULL, the estimated decision variables for the imposed weight restrictions
+#' \item{mus}{If WR != NULL, the estimated decision variables for the imposed weight restrictions
 #'  are stored in a matrix with the dimensions nrow(X) x nrow(WR), where the rows are the DMUs and 
 #'  columns the weight restrictions. If the values are positive, the WR is binding for the respective DMU.}
-#' 
+#' \item{slack}{If SLACK = TRUE, the slacks are estimated and stored in a matrix with the dimensions
+#' nrow(X) x (ncol(X) + ncol(Y)). Showing the Slack of each DMU (row) for each input and output
+#' (column).}
 #'
 #' @examples
 #' X <- c(1,1,2,4,1.5,2,4,3)
 #' Y <- c(1,2,4,4,0.5,2.5,3.5,4)
-#' deaWR(X,Y,RTS="vrs", SUPEREFF = FALSE)
+#' 
+#' # Two weight restrictions in standard form first on output then input.
+#' # The first WR shows the trade-off that inputs can be reduced by one unit
+#' # which reduces outputs by two units. The second WR shows that outputs can 
+#' # be increased by one unit when inputs are increased by two units.
+#' 
+#' WR <- matrix(c(-2,-1,1,2), nrow = 2, byrow = TRUE)
+#' 
+#' 
+#' wrDEA(X, Y, ORIENTATION = "in", RTS="vrs", WR = WR)
 #'
 #' @import lpSolveAPI
 #'
 #' @export
+#' 
 
 wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
                  XREF = NULL, YREF = NULL, SUPEREFF = FALSE, SLACK = FALSE) {

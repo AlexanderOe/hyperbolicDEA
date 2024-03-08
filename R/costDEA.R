@@ -1,17 +1,20 @@
 #' @title Cost DEA model
 #' @description Cost DEA model optimizing the input allocation with given prices.
-#' It returns the estimated lambdas as well as the optimal values for inputs.
+#' It returns the estimated lambdas as well as the optimal values for inputs and a cost efficiency score
+#' that is the ratio of optimal costs over observed costs.
 #' 
 #' @seealso [Benchmarking::cost.opt] for a similar function
 #'
-#' @param X Matrix or dataframe with DMUs as rows and inputs as columns
-#' @param Y Matrix or dataframe with DMUs as rows and outputs as columns
-#' @param pX Matrix or dataframe with prices for each DMU and input.
-#' Therefore it mus have the same dimensions as X.
-#' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs"
-#' @return A list object containing cost optimal inputs and lambdas showing
-#' the peer for optimal input allocation. Additionally, it returns the cost 
-#' efficiency as the ratio of the optimal cost to the observed cost.
+#' @param X Vector, matrix or dataframe with DMUs as rows and inputs as columns
+#' @param Y Vector, matrix or dataframe with DMUs as rows and outputs as columns
+#' @param pX Vector, matrix or dataframe with prices for each DMU and input.
+#' Therefore it must have the same dimensions as X.
+#' @param RTS Character string indicating the returns-to-scale, e.g. "crs", "vrs".
+#' 
+#' @return A list object containing the following:
+#' \item{lambdas}{Estimated values for the composition of the respective Benchmarks. The lambdas are stored in a matrix with dimensions nrow(X) x nrow(X), where the row is the DMU under observation and the columns are the peers used for the Benchmark.}
+#' \item{opt_value}{Optimal inputs.}
+#' \item{cost_eff}{Cost efficiency as the ratio of the optimal cost to the observed cost.}
 #' @examples
 #' X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
 #' Y <- matrix(c(1,1,1,1), ncol = 1)

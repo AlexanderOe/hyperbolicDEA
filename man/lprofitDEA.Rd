@@ -4,29 +4,32 @@
 \alias{lprofitDEA}
 \title{Linear profit DEA model}
 \usage{
-lprofitDEA(X, Y, pX, pY, RTS = "vrs")
+lprofitDEA(X, Y, pX, pY, RTS = "crs")
 }
 \arguments{
-\item{X}{Matrix or dataframe with DMUS as rows and inputs as columns}
+\item{X}{Vector, matrix or dataframe with DMUs as rows and inputs as columns}
 
-\item{Y}{Matrix or dataframe with DMUs as rows and outputs as columns}
+\item{Y}{Vector, matrix or dataframe with DMUs as rows and outputs as columns}
 
-\item{pX}{Matrix or dataframe with prices for each DMU and input.
-Therefore it mus have the same dimensions as X.}
+\item{pX}{Vector, matrix or dataframe with prices for each DMU and input.
+Therefore it must have the same dimensions as X.}
 
-\item{pY}{Matrix or dataframe with prices for each DMU and output.
-Therefore it mus have the same dimensions as Y.}
+\item{pY}{Vector, matrix or dataframe with prices for each DMU and output.
+Therefore it must have the same dimensions as Y.}
 
-\item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs"}
+\item{RTS}{Character string indicating the returns-to-scale, e.g. "crs", "vrs".}
 }
 \value{
-A list object containing optimal inputs and outputs, lambdas for the 
-peers of optimal allocation and efficiency scores as the ratio of the differences
-between the observed and optimal difference of cost to revenue.
+A list object containing the following:
+\item{lambdas}{Estimated values for the composition of the respective Benchmarks. The lambdas are stored in a matrix with dimensions nrow(X) x nrow(X), where the row is the DMU under observation and the columns are the peers used for the Benchmark.}
+\item{opt_value}{Optimal inputs and outputs.}
+\item{profit_eff}{Profit efficiency as the ratio of the differences between the observed and optimal difference of cost to revenue.}
 }
 \description{
 Linear profit DEA model optimizing the difference of cost to revenue.
 It returns the estimated lambdas as well as the optimal values for inputs and outputs.
+The linear profit estimation does not account for scale differences and also has issues
+with negative profits. Therefore, it is recommended to use the non-linear profit model.
 }
 \examples{
 X <- matrix(c(1,2,3,3,2,1,2,2), ncol = 2)
@@ -39,5 +42,5 @@ max_prof_lin<- lprofitDEA(X,Y,pX,pY)
 
 }
 \seealso{
-[Benchmakring::profit.opt] for a similar function
+[Benchmarking::profit.opt] for a similar function
 }
