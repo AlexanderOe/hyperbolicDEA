@@ -49,8 +49,8 @@ test_that("Weight Restrictions", {
   
   expect_equal(in_WR_hyp$eff, in_WR_lin$eff)
   
-  expect_equal(all.equal(round(as.matrix(in_WR_hyp$lambda),3), 
-                         round(as.matrix(in_WR_lin$lambda),3), check.attributes = FALSE), TRUE)
+  expect_equal(all.equal(round(as.matrix(in_WR_hyp$lambdas),3), 
+                         round(as.matrix(in_WR_lin$lambdas),3), check.attributes = FALSE), TRUE)
 
   expect_equal(all.equal(round(as.matrix(in_WR_hyp$mus),3), 
                          round(as.matrix(in_WR_lin$mus),3), check.attributes = FALSE), TRUE)
@@ -82,8 +82,8 @@ test_that("SLACK", {
   X <- c(1,1,2,3)
   Y <- c(1,2,4,3)
 
-  effHyp<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 1, SLACK = T)
-  eff <- Benchmarking::dea(X, Y, RTS = "vrs", ORIENTATION = "out",SLACK = T)
+  effHyp<- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 1, SLACK = TRUE)
+  eff <- Benchmarking::dea(X, Y, RTS = "vrs", ORIENTATION = "out",SLACK = TRUE)
 
   logic_vec <- rowSums(round(effHyp$slack,3)) > 0
   logic_vec <- unname(logic_vec)
@@ -94,15 +94,17 @@ test_that("SLACK", {
   X <- matrix(c(1,1,2,4,1.5,4,
                 2,4,1,1,4,1.5), ncol = 2)
   Y <- c(1,1,1,1,1,1)
-  
   Y <- as.matrix(Y)
   
   wr_dea <- wrDEA(X,Y, RTS = "crs", ORIENTATION = "in", SLACK = TRUE)
+  hyp_dea <- hyperbolicDEA(X,Y, RTS = "crs", ALPHA = 0, SLACK = TRUE)
+  BO_dea <- Benchmarking::dea(X,Y, RTS = "crs", ORIENTATION = "in", SLACK = TRUE)
   
-  print(wr_dea$slack)
-  print(wr_dea$eff)
-  print(wr_dea$lambda)
-  print(wr_dea$mus)
+  slack_sum <- rowSums(round(wr_dea$slack,3)) > 0
+  slack_sum <- unname(slack_sum)
+  
+  expect_equal(all.equal(round(wr_dea$slack,3), round(hyp_dea$slack,3), check.attributes = FALSE), TRUE)
+  expect_equal(slack_sum, BO_dea$slack)
   
 })
 

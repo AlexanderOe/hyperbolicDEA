@@ -214,13 +214,14 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
   
   # Add column names
   colnames(lambdas) <- c(paste("L",1:nrow(XREF),sep=""))
+  rownames(lambdas) <- paste("DMU", 1:nrow(X))
   
   if (!is.null(WR)){
     colnames(mu) <- c(paste("MU",1:nrow(WR),sep=""))
   }
   
   # Return the results
-  return(list(lambda = lambdas, mus = mu, eff = eff, slack = slack_results))
+  return(list(lambdas = lambdas, mus = mu, eff = eff, slack = slack_results))
 
 }
 

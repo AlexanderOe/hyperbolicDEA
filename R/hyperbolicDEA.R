@@ -151,17 +151,14 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
   theta <- c()
 
   lambdas <- matrix(NA, nrow = nrow(X), ncol = nrow(XREF))
-  colnames(lambdas) <- paste("L", 1:nrow(XREF), sep = "")
-  rownames(lambdas) <- paste("DMU", 1:nrow(X))
 
-  if (is.null(WR)){
-    mus <- NULL
-  } else{
+  if (!is.null(WR)){
     mus <- matrix(NA, nrow = nrow(X), ncol = nrow(WR))
-    colnames(mus) <- paste("MU", 1:nrow(WR), sep = "")
+  } else{
+    mus <- NULL
   }
 
-  results <- list(eff = eff, lambdas = lambdas, mus = mus)
+
 
   #register multicore estimation if adjusted
   if (PARALLEL > 1){
@@ -424,7 +421,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
   # Extract results for weight restrictions
   for (i in 1:nrow(X)){
     if (!is.null(WR)){
-      results$mus[i,] <- result_list[[i]]$solution[(nrow(XREF)+2):(nrow(XREF)+1+nrow(WR))]
+      mus[i,] <- result_list[[i]]$solution[(nrow(XREF)+2):(nrow(XREF)+1+nrow(WR))]
     }
 
     # fdh estimation
@@ -439,9 +436,9 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
         peer_list <- c()
         eff_list <- c()
         for (j in 1:nrow(XREF)){
-          lambdas <- c(rep(0, nrow(XREF)))
-          lambdas[j] <- 1
-          rhs <- c(lambdas%*%XREF, lambdas%*%YREF)
+          lambdas_fdh <- c(rep(0, nrow(XREF)))
+          lambdas_fdh[j] <- 1
+          rhs <- c(lambdas_fdh%*%XREF, lambdas_fdh%*%YREF)
           # The following line has a ifelse condition to select only DMUs that
           # are worse of for comparison. Hence, for input efficiency we are only
           # interested in DMUs that have similar or lower output levels. For output
@@ -472,10 +469,10 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
         possible_eff <- data.frame(peer_list, eff_list)
         eff_fdh <- min(possible_eff$eff_list)
         peer <- which(possible_eff[, "eff_list"] == eff_fdh)[1]
-        lambdas <- c(rep(0, nrow(XREF)))
-        lambdas[peer] <- 1
+        lambdas_fdh <- c(rep(0, nrow(XREF)))
+        lambdas_fdh[peer] <- 1
         eff <- c(eff, eff_fdh)
-        results$lambdas[i,] <- lambdas
+        lambdas[i,] <- lambdas_fdh
         theta <- c(theta, min(theta_list))
       } else{
         stop("FDH cannot be combined with weight restrictions")
@@ -487,19 +484,17 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
                              result_list[[i]]$solution[nrow(XREF)]^(1 - ALPHA)))
         lambda <- result_list[[i]]$solution[1:(nrow(XREF)-1)]
         lambda <- append(lambda, NA, after = i-1)
-        results$lambdas[i,] <- lambda
+        lambdas[i,] <- lambda
       } else{
         # Storage of results if not fdh or super-efficiency
         eff <- c(eff, ifelse(ALPHA >= 0.5, result_list[[i]]$solution[nrow(XREF)+1]^ALPHA,
                              result_list[[i]]$solution[nrow(XREF)+1]^(1 - ALPHA)))
-        results$lambdas[i,] <- result_list[[i]]$solution[1:nrow(XREF)]
+        lambdas[i,] <- result_list[[i]]$solution[1:nrow(XREF)]
         # For Slack estimation Theta
         theta <- c(theta, result_list[[i]]$solution[nrow(XREF)+1])
       }
     }
   }
-
-  results$eff <- eff
 
 
   ####### Slack estimation if True ######
@@ -522,79 +517,24 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
       YREF <-  as.matrix(non_scaled_values[,1:ncol(Y)])
     }
 
-    results_slack <- c()
-
-    for (i in 1:nrow(X)){
-      # set up the problem ( number of constraints, number of decision variables)
-      lprec <- make.lp((ncol(X)+ncol(Y)+1),(nrow(XREF)+ncol(X)+ncol(Y)))
-
-      # Set up first part with lambdas and inputs outputs as well as 1 for
-      # the lambda constraint in VRS (sum lambdas = 1)
-      for (k in 1:nrow(XREF)){
-        column <- set.column(lprec, k, c(XREF[k,],YREF[k,],1))
-
-        if (RTS == "fdh"){
-          set.type(lprec, k, "binary")
-        }
-      }
-
-      # Add decision variable for input slack in separate columns
-      for (j in 1:ncol(X)){
-        column <- c(rep(0, ncol(X)+ncol(Y)+1))
-        column[j] <- 1
-        set.column(lprec, nrow(XREF)+j, column)
-      }
-
-      # Add decision variable for output slack in separate columns
-      for (j in 1:ncol(Y)){
-        column <- c(rep(0, ncol(X)+ncol(Y)+1))
-        column[j+ncol(X)] <- -1
-        set.column(lprec, nrow(XREF)+ncol(X)+j, column)
-      }
-
-      # Change to maximization problem
-      lp.control(lprec, sense="max")
-
-      # set objective function only slack decision variables
-      set.objfn(lprec, c(rep(0,nrow(XREF)),rep(1,ncol(X)+ncol(Y))))
-
-      # set the constraint type lambda different for CRS and VRS
-      if (RTS == "crs"){
-        set.constr.type(lprec, c(rep("=", ncol(X)+ncol(Y)),">="))
-      } else{
-        set.constr.type(lprec, c(rep("=", ncol(X)+ncol(Y)+1)))
-      }
-
-      # set bounds 0 to 1 for lambdas in VRS and 0 to inf for slack
-      if (RTS == "vrs"){
-        set.bounds(lprec, upper = c(rep(1,nrow(XREF))), columns = c(1:nrow(XREF)))
-      }
-      set.bounds(lprec, lower = c(rep(0,nrow(XREF)+ncol(X)+ncol(Y))), columns = c(1:(nrow(XREF)+ncol(X)+ncol(Y))))
-      set.bounds(lprec, upper = c(rep(Inf,ncol(X)+ncol(Y))), columns = c((nrow(XREF)+1):(nrow(XREF)+ncol(X)+ncol(Y))))
-
-
-      # Solve the problem
-      if (RTS == "crs"){
-        set.rhs(lprec, c(X[i,]*(theta[i]^(1-ALPHA)),Y[i,]/(theta[i]^ALPHA),0))
-      } else{
-        set.rhs(lprec, c(X[i,]*(theta[i]^(1-ALPHA)),Y[i,]/(theta[i]^ALPHA),1))
-      }
-      solve(lprec)
-      slacks <- get.variables(lprec)
-      results_slack <- rbind(results_slack,slacks)
-    }
-
-    # slack
-    results$slack <- results_slack[,(nrow(XREF)+1):(nrow(XREF)+ncol(X)+ncol(Y))]
-    rownames(results$slack) <- paste("DMU",1:nrow(results$slack))
-    colnames(results$slack) <- c(paste("Sx", 1:ncol(X), sep = ""),
-                                 paste("Sy", 1:ncol(Y), sep = ""))
-
-    # New peers due to slack in lambdas
-    results$lambdas <- results_slack[,1:nrow(XREF)]
-    rownames(results$lambdas) <- paste("DMU",1:nrow(results$lambdas))
-    colnames(results$lambdas) <- paste("L", 1:ncol(results$lambdas), sep = "")
+    # Slack estimation
+    slack_est <- slack(X = X, Y = Y, XREF = XREF, YREF = YREF, RTS = RTS, 
+                       EFF = theta, ALPHA = ALPHA, WR = WR)
+    
+    mu <- slack_est$mu
+    lambdas <- slack_est$lambda
+    slack_results <- slack_est$slack
+  } else{
+    slack_results <- NULL
   }
+  
+  # Renaming results
+  if (!is.null(WR)){
+    colnames(mus) <- paste("MU", 1:nrow(WR), sep = "")
+  }
+  
+  colnames(lambdas) <- paste("L", 1:nrow(XREF), sep = "")
+  rownames(lambdas) <- paste("DMU", 1:nrow(X))
 
-  return(results)
+  return(list(lambdas = lambdas, mus = mus, eff = eff, slack = slack_results))
 }
