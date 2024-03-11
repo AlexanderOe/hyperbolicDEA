@@ -43,7 +43,8 @@ A list object containing the following information:
 in a vector with the length nrow(X).}
 \item{lambdas}{Estimated values for the composition of the respective Benchmarks.
 The lambdas are stored in a matrix with the dimensions nrow(X) x nrow(X), where
-the row is the DMU under observation and the columns the peers used for the Benchmark.}
+the row is the DMU under observation and the columns the peers used for the Benchmark. NOTE:
+Lambdas are automatically slack optimized.}
 \item{mus}{If WR != NULL, the estimated decision variables for the imposed weight restrictions
  are stored in a matrix with the dimensions nrow(X) x nrow(WR), where the rows are the DMUs and 
  columns the weight restrictions. If the values are positive, the WR is binding for the respective DMU.}

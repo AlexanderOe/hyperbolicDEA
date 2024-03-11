@@ -97,8 +97,10 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
     stop("Unknown scale of returns:", RTS)
   }
 
-  # Variable for if condition in SLACK estimation
+  # Variable for if condition in SLACK estimation and WR for post scaling
   XREF_YREF <- FALSE
+  WR_slack <- WR
+  print(WR)
 
   # scaling adjustments
   # and referring X and Y to XREF and YREF as well as matrix definition
@@ -521,15 +523,15 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
     } else{
       # YREF and XREF are the same as X and Y if not specified
       non_scaled_values <- t(apply(scaled_values, 1, function(r)r*attr(scaled_values,'scaled:scale')))
-      X <- as.matrix(non_scaled_values[,(ncol(Y)+1):(ncol(X)+ncol(Y))])
-      Y <-  as.matrix(non_scaled_values[,1:ncol(Y)])
-      XREF <- as.matrix(non_scaled_values[,(ncol(Y)+1):(ncol(X)+ncol(Y))])
-      YREF <-  as.matrix(non_scaled_values[,1:ncol(Y)])
+      X <- as.matrix(non_scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
+      Y <-  as.matrix(non_scaled_values[1:nrow(X),1:ncol(Y)])
+      XREF <- as.matrix(non_scaled_values[1:nrow(X),(ncol(Y)+1):(ncol(X)+ncol(Y))])
+      YREF <-  as.matrix(non_scaled_values[1:nrow(X),1:ncol(Y)])
     }
 
-    # Slack estimation
     slack_est <- slack(X = X, Y = Y, XREF = XREF, YREF = YREF, RTS = RTS, 
-                       EFF = theta, ALPHA = ALPHA, WR = WR)
+                       EFF = theta, ALPHA = ALPHA, WR = WR_slack, 
+                       NONDISC_IN = NONDISC_IN, NONDISC_OUT = NONDISC_OUT)
     
     mu <- slack_est$mu
     lambdas <- slack_est$lambda

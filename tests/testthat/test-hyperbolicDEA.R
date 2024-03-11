@@ -286,6 +286,35 @@ test_that("XREF YREF test", {
 
 })
 
+test_that("Non-disc variables and WR", {
+  
+  x1 <- c(1,1.5,3,3,4,1)
+  x2 <- c(3,1.5,2,4,1,5)
+  X <- cbind(x1,x2)
+  Y <- c(1,1,1,1,1,1)
+  
+  hyp_dea <- hyperbolicDEA(X,Y, RTS = "crs", ALPHA = 0, NONDISC_IN = c(2), SLACK = TRUE)
+  dea_wr <- wrDEA(X[,1],cbind(Y, -X[,2]), RTS = "crs", ORIENTATION = "in", SLACK = TRUE)
+  
+  # Be aware of different data structure in dea_wr -> compare column 2 to 3
+  expect_equal(hyp_dea$eff, dea_wr$eff)
+  expect_equal(hyp_dea$slack[,3], dea_wr$slack[,2])
+  
+  # With weight restrictions so there is no more slack
+  WR <- matrix(c(0,-1,3), nrow = 1)
+  WR2 <- matrix(c(0,-3,-1), nrow = 1)
+  
+  hyp_dea2 <- hyperbolicDEA(X,Y, RTS = "crs", ALPHA = 0, NONDISC_IN = c(2), WR = WR, SLACK = TRUE)
+  dea_wr2 <- wrDEA(X[,1],cbind(Y, -X[,2]), RTS = "crs", ORIENTATION = "in",  WR = WR2, SLACK = TRUE)
+  
+  expect_equal(hyp_dea2$eff, dea_wr2$eff)
+  
+  round(hyp_dea2$slack, 3)
+  round(dea_wr2$slack, 3)
+  
+  round(hyp_dea2$mus,3)
+  dea_wr2$mus
+})
 
 
 

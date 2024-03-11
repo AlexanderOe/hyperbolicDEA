@@ -1,4 +1,5 @@
-slack <- function(X, Y, RTS, ALPHA, EFF, XREF, YREF, WR = NULL){
+slack <- function(X, Y, RTS, ALPHA, EFF, XREF, YREF, WR = NULL,
+                  NONDISC_IN = NULL, NONDISC_OUT = NULL){
   
   # if there is no specific XREF YREF, then use the same as X and Y
   # this is automatically given by the functions that call slack
@@ -50,6 +51,15 @@ slack <- function(X, Y, RTS, ALPHA, EFF, XREF, YREF, WR = NULL){
     
     # Set constraint-types
     set.constr.type(slack_model, c(rep("=", nrow(in_out_data))))
+    
+    # Adjust for non-disc variables take the inverse of the eff for non-disc
+    # variables so it cancels out in the nexts step when rhs is set
+    if (!is.null(NONDISC_IN)){
+      X[i,NONDISC_IN] <- X[i,NONDISC_IN]*(1/(EFF[i]^(1-ALPHA)))
+    }  
+    if (!is.null(NONDISC_OUT)){
+      Y[i,NONDISC_OUT] <- Y[,NONDISC_OUT]*(EFF[i]^ALPHA)
+    }
     
     # Set the right-hand side of the constraints
     set.rhs(slack_model, c(Y[i,]/(EFF[i]^ALPHA), X[i,]*(EFF[i]^(1-ALPHA))))
