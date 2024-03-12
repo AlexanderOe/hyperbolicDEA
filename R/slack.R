@@ -7,7 +7,6 @@ slack <- function(X, Y, RTS, ALPHA, EFF, XREF, YREF, WR = NULL,
   if (!is.null(WR)){
     # first outputs then inputs to fit the WR standard form
     in_out_data <- cbind(rbind(t(YREF), t(XREF)),t(WR))
-    print(in_out_data)
     
   } else {
     # Change data structure to add columns

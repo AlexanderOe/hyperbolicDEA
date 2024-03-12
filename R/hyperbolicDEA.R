@@ -100,7 +100,6 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
   # Variable for if condition in SLACK estimation and WR for post scaling
   XREF_YREF <- FALSE
   WR_slack <- WR
-  print(WR)
 
   # scaling adjustments
   # and referring X and Y to XREF and YREF as well as matrix definition
@@ -533,7 +532,6 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
                        EFF = theta, ALPHA = ALPHA, WR = WR_slack, 
                        NONDISC_IN = NONDISC_IN, NONDISC_OUT = NONDISC_OUT)
     
-    mu <- slack_est$mu
     lambdas <- slack_est$lambda
     slack_results <- slack_est$slack
   } else{

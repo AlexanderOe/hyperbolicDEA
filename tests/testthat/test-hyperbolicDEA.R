@@ -301,19 +301,16 @@ test_that("Non-disc variables and WR", {
   expect_equal(hyp_dea$slack[,3], dea_wr$slack[,2])
   
   # With weight restrictions so there is no more slack
-  WR <- matrix(c(0,-1,3), nrow = 1)
-  WR2 <- matrix(c(0,-3,-1), nrow = 1)
+  WR <- matrix(c(0,-1,4), nrow = 1)
+  WR2 <- matrix(c(0,-4,-1), nrow = 1)
   
   hyp_dea2 <- hyperbolicDEA(X,Y, RTS = "crs", ALPHA = 0, NONDISC_IN = c(2), WR = WR, SLACK = TRUE)
   dea_wr2 <- wrDEA(X[,1],cbind(Y, -X[,2]), RTS = "crs", ORIENTATION = "in",  WR = WR2, SLACK = TRUE)
   
   expect_equal(hyp_dea2$eff, dea_wr2$eff)
-  
-  round(hyp_dea2$slack, 3)
-  round(dea_wr2$slack, 3)
-  
-  round(hyp_dea2$mus,3)
-  dea_wr2$mus
+  expect_equal(all.equal(as.matrix(hyp_dea2$slack), 
+                         as.matrix(dea_wr2$slack), check.attributes = FALSE), TRUE)
+  expect_equal(hyp_dea2$mus, as.matrix(dea_wr2$mus))
 })
 
 

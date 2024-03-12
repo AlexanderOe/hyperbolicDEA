@@ -224,7 +224,6 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     } else {
       slack_est <- slack(X = X, Y = Y, XREF = XREF, YREF = YREF, RTS = RTS, EFF = eff, ALPHA = 1, WR = WR)
     }
-    mu <- slack_est$mu
     lambdas <- slack_est$lambda
     slack_results <- slack_est$slack
   } else {
