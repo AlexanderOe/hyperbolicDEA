@@ -46,16 +46,17 @@
 #' X <- c(1,1,2,4,1.5,2,4,3)
 #' Y <- c(1,2,4,4,0.5,2.5,3.5,4)
 #' # we now impose linked weght restrictions. We assume outputs decrease by 
-#' # two units when inputs are reduced by one. And we assume that outputs can
-#' # can be increased by one when inputs are increased by two. 
+#' # four units when inputs are reduced by one. And we assume that outputs can
+#' # can be increased by one when inputs are increased by four 
 #'
-#' WR <- matrix(c(-2,-1,1,2), nrow = 2, byrow = TRUE)
+#' WR <- matrix(c(-4,-1,1,4), nrow = 2, byrow = TRUE)
 #' hyperbolicDEA(X,Y,RTS="vrs", WR = WR)
 #'
 #' # Another example having the same data but just estimate the results for DMU 1
-#' # using XREF YREF and and a higher focus on inputs adjusting the ALPHA towards 0
+#' # using XREF YREF and and a higher focus on inputs adjusting the ALPHA towards 0.
+#' # Additionally, slacks are estimated.
 #'
-#' hyperbolicDEA(X[1],Y[1],RTS="vrs", XREF = X, YREF = Y, WR = WR, ALPHA = 0.1)
+#' hyperbolicDEA(X[1],Y[1],RTS="vrs", XREF = X, YREF = Y, WR = WR, ALPHA = 0.1, SLACK = TRUE)
 #'
 #' @import dplyr
 #' @import nloptr
@@ -546,5 +547,5 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
   colnames(lambdas) <- paste("L", 1:nrow(XREF), sep = "")
   rownames(lambdas) <- paste("DMU", 1:nrow(X))
 
-  return(list(lambdas = lambdas, mus = mus, eff = eff, slack = slack_results))
+  return(list(eff = eff, lambdas = lambdas, mus = mus, slack = slack_results))
 }

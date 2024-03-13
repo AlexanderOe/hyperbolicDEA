@@ -38,13 +38,18 @@
 #' 
 #' # Two weight restrictions in standard form first on output then input.
 #' # The first WR shows the trade-off that inputs can be reduced by one unit
-#' # which reduces outputs by two units. The second WR shows that outputs can 
-#' # be increased by one unit when inputs are increased by two units.
+#' # which reduces outputs by four units. The second WR shows that outputs can 
+#' # be increased by one unit when inputs are increased by four units.
 #' 
-#' WR <- matrix(c(-2,-1,1,2), nrow = 2, byrow = TRUE)
-#' 
+#' WR <- matrix(c(-4,-1,1,4), nrow = 2, byrow = TRUE)
 #' 
 #' wrDEA(X, Y, ORIENTATION = "in", RTS="vrs", WR = WR)
+#' 
+#' # For an estimation just focusing on one DMU one can for example use 
+#' # XREF and YREF to define the technology and then estimate the efficiency for 
+#' # the DMU under observation (here DMU 1). Let's additionally estimate the slacks. 
+#' 
+#' wrDEA(X[1], Y[1], ORIENTATION = "in", RTS="vrs", XREF = X, YREF = Y, SLACK = TRUE, WR = WR)
 #'
 #' @import lpSolveAPI
 #'
@@ -240,7 +245,7 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
   }
   
   # Return the results
-  return(list(lambdas = lambdas, mus = mu, eff = eff, slack = slack_results))
+  return(list(eff = eff, lambdas = lambdas, mus = mu, slack = slack_results))
 
 }
 
