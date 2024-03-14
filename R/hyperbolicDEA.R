@@ -70,7 +70,7 @@
 hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
                            ACCURACY = 1.0e-10, XREF = NULL, YREF = NULL,
                            SUPEREFF = FALSE, NONDISC_IN = NULL, NONDISC_OUT = NULL,
-                           PARALLEL = 1, ALPHA = 0.5){
+                           PARALLEL = 2, ALPHA = 0.5){
 
   # Check arguments given by user
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -176,9 +176,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
     registerDoParallel(PARALLEL)
   }
 
-  # start of the main loop for non-linear solver (suppress warning of
-  # parallel backend not registerd if core =1 )
-  suppressWarnings(
+  # start of the main loop for non-linear solver
   result_list <- foreach (i = 1:nrow(X), .packages = "nloptr") %dopar% {
 
     # Change XREF YREF to check superefficiency
@@ -422,7 +420,6 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
     # res will be stored in result_list for each i given by the foreach loop
 
   }
-  ) # end of suppress warnings
 
   # Deregister parallel core
   if (PARALLEL > 1){
