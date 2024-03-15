@@ -70,7 +70,7 @@
 hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
                            ACCURACY = 1.0e-10, XREF = NULL, YREF = NULL,
                            SUPEREFF = FALSE, NONDISC_IN = NULL, NONDISC_OUT = NULL,
-                           PARALLEL = 2, ALPHA = 0.5){
+                           PARALLEL = 1, ALPHA = 0.5){
 
   # Check arguments given by user
   if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
@@ -126,9 +126,13 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
 
   # scaling adjustments
   # and referring X and Y to XREF and YREF as well as matrix definition
+  WR_scaler <- NULL # used to adjust mus again to original scale
   if (is.null(XREF)&&is.null(YREF)){
     if (!is.null(WR)){
-      WR <- t(t(WR)/c(colMeans(Y),colMeans(X)))
+      # Scaling weights to observed values - taking mean of all variables that 
+      # are in the WR and adjusting with mean of absolute values of WR
+      WR_scaler <- mean(cbind(Y,X)[,which(colSums(WR != 0) > 0)])/mean(abs(WR[WR != 0]))
+      WR <- t(t(WR*WR_scaler)/c(colMeans(Y),colMeans(X)))
     }
     X <- t(t(X)/colMeans(X))
     Y <- t(t(Y)/colMeans(Y))
@@ -139,7 +143,8 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
   } else{
     # equal scaling of XREF YREF and Y and X
     if (!is.null(WR)){
-      WR <- matrix(t(t(WR)/c(colMeans(YREF),colMeans(XREF))), nrow = nrow(WR))
+      WR_scaler <- mean(cbind(YREF,XREF)[,which(colSums(WR != 0) > 0)])/mean(abs(WR[WR != 0]))
+      WR <- matrix(t(t(WR * WR_scaler)/c(colMeans(YREF),colMeans(XREF))), nrow = nrow(WR))
     }
     X <- t(t(X)/colMeans(XREF))
     Y <- t(t(Y)/colMeans(YREF))
@@ -521,6 +526,7 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
   
   # Renaming results
   if (!is.null(WR)){
+    mus <- mus*WR_scaler
     colnames(mus) <- paste("MU", 1:nrow(WR), sep = "")
   }
   
