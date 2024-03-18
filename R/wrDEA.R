@@ -56,30 +56,21 @@
 #' @export
 #' 
 
-wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
+wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
                  XREF = NULL, YREF = NULL, SUPEREFF = FALSE, SLACK = FALSE) {
   
   # Check arguments given by user 
-  if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
-    stop("X must be a numeric vector, matrix or dataframe")
-  }
-  if (!is.matrix(Y) && !is.data.frame(Y) && !is.numeric(Y)){
-    stop("Y must be a numeric vector, matrix or dataframe")
-  }
+  check_arguments(X = X, Y = Y, ORIENTATION = ORIENTATION, RTS = RTS, 
+                  WR = WR, XREF = XREF, YREF = YREF)
 
   # Change data structure to uniformly be matrices
   X <- as.matrix(X)
   Y <- as.matrix(Y)
   
   if (!is.null(WR)){
-    if (!is.matrix(WR) && !is.data.frame(WR) && !is.numeric(WR)){
-      stop("WR must be a numeric matrix or dataframe")
+    if (!is.matrix(WR) && !is.data.frame(WR)){
+      WR <- t(as.matrix(WR))
     }
-    if (ncol(WR) != ncol(X) + ncol(Y)){
-      stop("WR must be a matrix of weight restrictions in standard form,
-           ncol(WR) = ncol(Y) + ncol(X)")
-    }
-    WR <- as.matrix(WR)
   }
   
   if (is.null(XREF)&&is.null(YREF)){
@@ -88,29 +79,15 @@ wrDEA<- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     YREF <- Y
     
   } else{
-    if (!is.matrix(XREF) && !is.data.frame(XREF) && !is.numeric(XREF)){
-      stop("XREF must be a numeric vector, matrix or dataframe")
-    }
     if (!is.matrix(XREF)){
       XREF <- as.matrix(XREF)
-    }
-    if (!is.matrix(YREF) && !is.data.frame(YREF) && !is.numeric(YREF)){
-      stop("YREF must be a numeric vector, matrix or dataframe")
     }
     if (!is.matrix(YREF)){
       YREF <- as.matrix(YREF)
     }
-    if ((ncol(as.matrix(YREF))+ncol(as.matrix(XREF))) != (ncol(as.matrix(X)) + ncol(as.matrix(Y)))){
-      stop("XREF and YREF must be the same input-output combination:
-           ncol(XREF) = ncol(X); ncol(YREF) = ncol(Y)")
-    }
   }
   
   RTS <- tolower(RTS)
-  possible_rts <- c("crs", "vrs", "ndrs", "nirs", "fdh")
-  if (!(RTS %in% possible_rts)){
-    stop("Scale of returns not implemented:", RTS)
-  }
 
   # storage for results
   lambdas <- data.frame()

@@ -22,13 +22,17 @@ test_that("Scaling", {
   X2 <- c(1,3,4,5,6,4)/1000000000
   Y2 <- c(1,2,4,4,4,5)/1000000000
 
-  X <- cbind.data.frame(X1,X2)
-  Y <- cbind.data.frame(Y1,Y2)
+  X <- cbind(X1,X2)
+  Y <- cbind(Y1,Y2)
 
   eff_comparison <- Benchmarking::dea(X, Y, RTS="vrs",ORIENTATION="graph")$eff
   eff <- hyperbolicDEA(X, Y, RTS = "vrs")$eff
+  
+  eff_hyp <- hyperbolicDEA(X, Y, RTS = "vrs", ALPHA = 1)$eff
+  eff_wr <- wrDEA(X, Y, RTS = "vrs", ORIENTATION = "out")$eff
 
   expect_equal(round(eff,3), round(eff_comparison,3))
+  expect_equal(round(eff_hyp,3), round(eff_wr,3))
 })
 
 test_that("Weight Restrictions", {

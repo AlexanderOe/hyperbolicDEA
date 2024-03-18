@@ -73,48 +73,32 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
                            PARALLEL = 1, ALPHA = 0.5){
 
   # Check arguments given by user
-  if (!is.matrix(X) && !is.data.frame(X) && !is.numeric(X)){
-    stop("X must be a numeric vector, matrix or dataframe")
-  }
+  check_arguments(X = X, Y = Y, RTS = RTS, WR = WR, XREF = XREF, 
+                  YREF = YREF, NONDISC_IN = NONDISC_IN, NONDISC_OUT = NONDISC_OUT,
+                  ALPHA = ALPHA)
+  
   if (!is.matrix(X)){
     X <- as.matrix(X)
-  }
-  if (!is.matrix(Y) && !is.data.frame(Y) && !is.numeric(Y)){
-    stop("Y must be a numeric vector, matrix or dataframe")
   }
   if (!is.matrix(Y)){
     Y <- as.matrix(Y)
   }
   if (!is.null(WR)){
-    if (ncol(WR) != ncol(X) + ncol(Y)){
-      stop("WR must be a matrix of weight restrictions in standard form,
-           ncol(WR) = ncol(Y) + ncol(X)")
+    if (!is.matrix(WR) && !is.data.frame(WR)){
+      WR <- t(as.matrix(WR))
     }
   }
   if (!is.null(XREF)&&!is.null(YREF)){
-    if (!is.matrix(XREF) && !is.data.frame(XREF) && !is.numeric(XREF)){
-      stop("XREF must be a numeric vector, matrix or dataframe")
-    }
     if (!is.matrix(XREF)){
       XREF <- as.matrix(XREF)
-    }
-    if (!is.matrix(YREF) && !is.data.frame(YREF) && !is.numeric(YREF)){
-      stop("YREF must be a numeric vector, matrix or dataframe")
     }
     if (!is.matrix(YREF)){
       YREF <- as.matrix(YREF)
     }
-    if ((ncol(as.matrix(YREF))+ncol(as.matrix(XREF))) != (ncol(as.matrix(X)) + ncol(as.matrix(Y)))){
-      stop("XREF and YREF must be the same input-output combination:
-           ncol(XREF) = ncol(X); ncol(YREF) = ncol(Y)")
-    }
   }  
 
-  possible_rts <- c("crs", "vrs", "ndrs", "nirs", "fdh")
   RTS <- tolower(RTS)
-  if (!(RTS %in% possible_rts)){
-    stop("Unknown scale of returns:", RTS)
-  }
+  
 
   # Variable for if condition in SLACK estimation and WR,X,Y,XREF,YREF for post scaling
   XREF_YREF <- FALSE
