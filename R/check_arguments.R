@@ -56,12 +56,12 @@ check_arguments <- function(X, Y, XREF = NULL, YREF = NULL,
     }
   }
   if (!is.null(NONDISC_IN)){
-    if (!(all(NONDISC_IN %in% 1:length(as.matrix(X))))){
+    if (!(all(NONDISC_IN %in% 1:ncol(as.matrix(X))))){
       stop("NONDISC_IN must be an available index of the input matrix")
     } 
   }
   if (!is.null(NONDISC_OUT)){
-    if (!(all(NONDISC_OUT %in% 1:length(as.matrix(Y))))){
+    if (!(all(NONDISC_OUT %in% 1:ncol(as.matrix(Y))))){
       stop("NONDISC_OUT must be an available index of the output matrix")
     } 
   }

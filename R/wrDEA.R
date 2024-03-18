@@ -87,6 +87,7 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     }
   }
   
+  ORIENTATION <- tolower(ORIENTATION)
   RTS <- tolower(RTS)
 
   # storage for results
