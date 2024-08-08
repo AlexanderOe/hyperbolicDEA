@@ -1,3 +1,12 @@
+.onAttach <- function(libname, hyperbolicDEA) {
+  packageStartupMessage("Welcome to hyperbolicDEA")
+  packageStartupMessage("Version: ", utils::packageVersion(hyperbolicDEA))
+  packageStartupMessage("Visit https://github.com/AlexanderOe/hyperbolicDEA for more information or opening issues. You can also contact me via alexander@ifro.ku.dk.")
+  packageStartupMessage(" ")
+  packageStartupMessage("When using the package, please cite the following paper: Öttl, A., Asmild, M., & Gulde, D. (2023). Data Envelopment Analysis and hyperbolic efficiency measures: Extending applications and possibilities for between-group comparisons.")
+}
+
+
 check_arguments <- function(X, Y, XREF = NULL, YREF = NULL, 
                             WR = NULL, RTS = "vrs", 
                             NONDISC_IN = NULL, NONDISC_OUT = NULL, 

@@ -195,10 +195,10 @@ test_that("lprofitDEA", {
   Y <- matrix(c(1,1,1,1), ncol = 1)
   
   input_prices <- matrix(c(2,1,2,1,2,1,1,2), ncol =  2, byrow = TRUE)
-  output_prices <- matrix(c(1,1,1,1), ncol = 1)
+  output_prices <- matrix(c(10,10,10,10), ncol = 1)
   
-  max_lprofit <- lprofitDEA(X,Y,input_prices, output_prices, RTS = "crs")
-  BO_profit <- Benchmarking::profit.opt(X,Y,input_prices, output_prices, RTS = "crs")
+  max_lprofit <- lprofitDEA(X,Y,input_prices, output_prices, RTS = "vrs")
+  BO_profit <- Benchmarking::profit.opt(X,Y,input_prices, output_prices, RTS = "vrs")
   
   expect_equal(all.equal(as.matrix(max_lprofit$opt_value), 
                          as.matrix(cbind(BO_profit$xopt, BO_profit$yopt)), 
