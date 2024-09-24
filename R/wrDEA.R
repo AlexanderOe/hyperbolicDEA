@@ -125,9 +125,9 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     
     # Change to maximization problem
     if (ORIENTATION == "in") {
-      lp.control(dea_model, sense="min")
+      lp.control(dea_model, basis.crash="leastdegenerate", sense="min")
     } else {
-      lp.control(dea_model, sense="max")
+      lp.control(dea_model, basis.crash="leastdegenerate", sense="max")
     }  
     
     # Set the coefficients of the linear programming problem (frontier)
