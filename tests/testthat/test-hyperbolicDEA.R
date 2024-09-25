@@ -317,7 +317,3 @@ test_that("Non-disc variables and WR", {
   expect_equal(hyp_dea2$mus, as.matrix(dea_wr2$mus))
 })
 
-
-
-
-
