@@ -116,10 +116,10 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
       # Scaling weights to observed values - taking mean of all variables that 
       # are in the WR and adjusting with mean of absolute values of WR
       WR_scaler <- mean(cbind(Y,X)[,which(colSums(WR != 0) > 0)])/mean(abs(WR[WR != 0]))
-      WR <- t(t(WR*WR_scaler)/c(colMeans(Y),colMeans(X)))
+      WR <- t(t(WR*WR_scaler)/c(apply(Y, 2, median),apply(X, 2, median)))
     }
-    X <- t(t(X)/colMeans(X))
-    Y <- t(t(Y)/colMeans(Y))
+    X <- t(t(X)/apply(X, 2, median))
+    Y <- t(t(Y)/apply(Y, 2, median))
 
     XREF <- X
     YREF <- Y
@@ -128,12 +128,12 @@ hyperbolicDEA <- function(X, Y, RTS = "vrs", WR = NULL, SLACK=FALSE,
     # equal scaling of XREF YREF and Y and X
     if (!is.null(WR)){
       WR_scaler <- mean(cbind(YREF,XREF)[,which(colSums(WR != 0) > 0)])/mean(abs(WR[WR != 0]))
-      WR <- matrix(t(t(WR * WR_scaler)/c(colMeans(YREF),colMeans(XREF))), nrow = nrow(WR))
+      WR <- matrix(t(t(WR * WR_scaler)/c(apply(YREF, 2, median),apply(XREF, 2, median))), nrow = nrow(WR))
     }
-    X <- t(t(X)/colMeans(XREF))
-    Y <- t(t(Y)/colMeans(YREF))
-    XREF <- t(t(XREF)/colMeans(XREF))
-    YREF <- t(t(YREF)/colMeans(YREF))
+    X <- t(t(X)/apply(XREF, 2, median))
+    Y <- t(t(Y)/apply(YREF, 2, median))
+    XREF <- t(t(XREF)/apply(XREF, 2, median))
+    YREF <- t(t(YREF)/apply(YREF, 2, median))
   }
 
   # adjustments to NONDISC variables
