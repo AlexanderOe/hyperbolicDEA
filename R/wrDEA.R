@@ -64,8 +64,12 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
                   WR = WR, XREF = XREF, YREF = YREF)
 
   # Change data structure to uniformly be matrices
-  X <- as.matrix(X)
-  Y <- as.matrix(Y)
+  if (!is.matrix(X)){
+    X <- as.matrix(X)
+  }
+  if (!is.matrix(Y)){
+    Y <- as.matrix(Y)
+  }
   
   if (!is.null(WR)){
     if (!is.matrix(WR) && !is.data.frame(WR)){

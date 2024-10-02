@@ -24,9 +24,16 @@ check_arguments <- function(X, Y, XREF = NULL, YREF = NULL,
     if (!is.matrix(WR) && !is.data.frame(WR)){
       WR <- t(as.matrix(WR))
     } 
-    if (ncol(WR) != ncol(as.matrix(X)) + ncol(as.matrix(Y))){
-      stop("WR must be a matrix of weight restrictions in standard form,
+    if (!is.null(XREF)&&!is.null(YREF)){
+      if (ncol(WR) != ncol(as.matrix(XREF)) + ncol(as.matrix(YREF))){
+        stop("WR must be a matrix of weight restrictions in standard form,
            ncol(WR) = ncol(Y) + ncol(X)")
+      }
+    } else {
+      if (ncol(WR) != ncol(as.matrix(X)) + ncol(as.matrix(Y))){
+        stop("WR must be a matrix of weight restrictions in standard form,
+           ncol(WR) = ncol(Y) + ncol(X)")
+      }
     }
   }
   if (!is.null(XREF)&&!is.null(YREF)){
@@ -36,9 +43,11 @@ check_arguments <- function(X, Y, XREF = NULL, YREF = NULL,
     if (!is.matrix(YREF) && !is.data.frame(YREF) && !is.numeric(YREF)){
       stop("YREF must be a numeric vector, matrix or dataframe")
     } 
-    if ((ncol(as.matrix(YREF))+ncol(as.matrix(XREF))) != (ncol(as.matrix(X)) + ncol(as.matrix(Y)))){
-      stop("XREF and YREF must be the same input-output combination:
+    if (!is.numeric(X) || !is.numeric(Y)){
+      if ((ncol(as.matrix(YREF))+ncol(as.matrix(XREF))) != (ncol(as.matrix(X)) + ncol(as.matrix(Y)))){
+        stop("XREF and YREF must be the same input-output combination:
            ncol(XREF) = ncol(X); ncol(YREF) = ncol(Y)")
+      }
     }
   }  
   if (anyNA(X) || anyNA(Y) || anyNA(XREF) || anyNA(YREF) || anyNA(WR) ||
