@@ -17,6 +17,7 @@
 #' @param YREF Vector, matrix or dataframe with firms defining the technology as rows and outputs as columns
 #' @param SUPEREFF Boolean variable indicating whether super-efficiencies shall be estimated
 #' @param SLACK Boolean variable indicating whether slack-based estimation should be applied
+#' @param COST Boolean variable indicating whether efficiency is estimated using trade-off weight restrictions. Therefore mus can be positive and negative when set to TRUE
 #'
 #' @return A list object containing the following information:
 #' \item{eff}{Are the estimated efficiency scores for the DMUs under observation stored 
@@ -57,7 +58,8 @@
 #' 
 
 wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
-                 XREF = NULL, YREF = NULL, SUPEREFF = FALSE, SLACK = FALSE) {
+                 XREF = NULL, YREF = NULL, SUPEREFF = FALSE, SLACK = FALSE,
+                 COST = FALSE) {
   
   # Check arguments given by user 
   check_arguments(X = X, Y = Y, ORIENTATION = ORIENTATION, RTS = RTS, 
@@ -156,7 +158,12 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     set.constr.type(dea_model, c(rep(">=", ncol(Y)), rep("<=", ncol(X))))
     
     # Set the lower bounds of the decision variables
-    set.bounds(dea_model, lower = c(rep(0,(ncol(in_out_data)+1))))
+    if (COST) {
+      set.bounds(dea_model, lower = c(rep(0,nrow(XREF)),
+                                      rep(-Inf, nrow(WR)), 0))
+    } else {
+      set.bounds(dea_model, lower = c(rep(0,(ncol(in_out_data)+1))))
+    }
     
     # Set the right-hand side of the constraints
     if (ORIENTATION == "in") {
@@ -196,11 +203,12 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
       # Here we have a Multi-Objective Optimization as we try
       # to keep the mu's as small as possible particularly relevant 
       # for cost - efficiency analysis to obtain optimal quantities
-      add.constraint(dea_model, c(rep(0,ncol(in_out_data)),1), "=", variables[(ncol(in_out_data)+1)])
-      set.objfn(dea_model, c(rep(0,nrow(XREF)), rep(1, nrow(WR)), 1))
-      solve(dea_model)
+      if (COST) {
+        add.constraint(dea_model, c(rep(0,ncol(in_out_data)),1), "=", variables[(ncol(in_out_data)+1)])
+        set.objfn(dea_model, c(rep(0,nrow(XREF)), rep(1, nrow(WR)), 1))
+        solve(dea_model)
+      }
       variables <- get.variables(dea_model)
-      
       mu <- rbind(mu, variables[(nrow(XREF)+1):(nrow(XREF)+nrow(WR))])
     } else {
       mu <- NULL

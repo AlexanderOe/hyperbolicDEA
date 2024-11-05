@@ -13,7 +13,8 @@ wrDEA(
   XREF = NULL,
   YREF = NULL,
   SUPEREFF = FALSE,
-  SLACK = FALSE
+  SLACK = FALSE,
+  COST = FALSE
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ restrictions on inputs.}
 \item{SUPEREFF}{Boolean variable indicating whether super-efficiencies shall be estimated}
 
 \item{SLACK}{Boolean variable indicating whether slack-based estimation should be applied}
+
+\item{COST}{Boolean variable indicating whether efficiency is estimated using trade-off weight restrictions. Therefore mus can be positive and negative when set to TRUE}
 }
 \value{
 A list object containing the following information:

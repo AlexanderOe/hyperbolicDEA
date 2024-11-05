@@ -64,6 +64,7 @@
 #' @import foreach
 #' @import doParallel
 #' @import Benchmarking
+#' @importFrom stats median
 #'
 #' @export
 

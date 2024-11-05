@@ -317,3 +317,24 @@ test_that("Non-disc variables and WR", {
   expect_equal(hyp_dea2$mus, as.matrix(dea_wr2$mus))
 })
 
+test_that("Cost efficiency with weight restrictions", {
+  # See illustration in paper on Cost eff with trade off weight restrictions
+  x1 <- c(2, 1.5, 3, 2, 1, 2.5)
+  x2 <- c(1, 2, 0.5, 4, 4, 2)
+  X <- cbind(x1, x2)
+  
+  w1 <- c(2, 2, 2, 2, 2, 2)
+  w2 <- c(1, 1, 1, 1, 1, 1)
+  W <- cbind(w1, w2)
+  
+  Y <- c(1, 1, 1, 1, 1, 1)
+  
+  # Calculate Cost efficiency with the classical approach
+  classic_cost <- costDEA(X, Y, W)
+  
+  WR <- matrix(c(0,1,-1), nrow = 1, byrow = T)
+  
+  cost_est <- wrDEA(X*W, Y, ORIENTATION = "in", RTS = "crs", WR = WR, COST = T)
+  
+  expect_equal(classic_cost$cost_eff, cost_est$eff)
+})
