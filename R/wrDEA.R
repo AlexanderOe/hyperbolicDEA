@@ -198,6 +198,7 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     
     # Get the optimal solution and store results in a data frame
     variables <- get.variables(dea_model)
+    
     if (!is.null(WR)){
       
       # Here we have a Multi-Objective Optimization as we try
@@ -205,7 +206,11 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
       # for cost - efficiency analysis to obtain optimal quantities
       if (COST) {
         add.constraint(dea_model, c(rep(0,ncol(in_out_data)),1), "=", variables[(ncol(in_out_data)+1)])
-        set.objfn(dea_model, c(rep(0,nrow(XREF)), rep(1, nrow(WR)), 1))
+        # to minimize absolute values we multiply with -1 if mus are negative
+        # which we know from the previous optimization
+        set.objfn(dea_model, c(rep(0,nrow(XREF)), 
+                               ifelse(variables[(nrow(XREF)+1):(nrow(XREF)+nrow(WR))] > 0, 1, -1), 
+                               0))
         solve(dea_model)
       }
       variables <- get.variables(dea_model)
