@@ -141,7 +141,7 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
       set.column(dea_model, column, in_out_data[,column])
     }
     
-    # Set decision variables for the objective function last row
+    # Set decision variables for the objective function last column
     if (ORIENTATION == "in") {
       objective <- c(rep(0, ncol(Y)), -X[i,])
     } else {
@@ -208,9 +208,25 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
         add.constraint(dea_model, c(rep(0,ncol(in_out_data)),1), "=", variables[(ncol(in_out_data)+1)])
         # to minimize absolute values we multiply with -1 if mus are negative
         # which we know from the previous optimization
-        set.objfn(dea_model, c(rep(0,nrow(XREF)), 
-                               ifelse(variables[(nrow(XREF)+1):(nrow(XREF)+nrow(WR))] > 0, 1, -1), 
-                               0))
+        for (j in 1:nrow(WR)) {
+          # Add one auxiliary variable y_j for each mu_j
+          add.column(dea_model, rep(0, nrow(dea_model)))  # New column for y_j
+        }
+        
+        for (j in 1:nrow(WR)) {
+          # Constraint 1: y_j >= mu_j
+          # Add a row if needed and set coefficients
+          add.constraint(dea_model, c(1, 1), 
+                         indices = c((nrow(XREF) + j), (ncol(in_out_data)+ 1 + j)), type = ">=", rhs = 0)
+          
+          # Constraint 2: y_j >= -mu_j
+          add.constraint(dea_model, c(-1, 1), 
+                         indices = c((nrow(XREF) + j), (ncol(in_out_data)+ 1 + j)), type = ">=", rhs = 0)
+        }
+        
+        set.objfn(dea_model, c(rep(0,ncol(in_out_data)), 
+                               0,
+                               rep(1, nrow(WR))))
         solve(dea_model)
       }
       variables <- get.variables(dea_model)

@@ -337,4 +337,6 @@ test_that("Cost efficiency with weight restrictions", {
   cost_est <- wrDEA(X*W, Y, ORIENTATION = "in", RTS = "crs", WR = WR, COST = T)
   
   expect_equal(classic_cost$cost_eff, cost_est$eff)
+  print(cost_est$lambdas)
+  
 })
