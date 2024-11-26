@@ -5,6 +5,9 @@
 #' super-efficiency scores. The mathematical and theoretical foundations of the code are presented in the paper
 #' "Data Envelopment Analysis and Hyperbolic Efficiency Measures: Extending Applications and Possiblities
 #' for Between-Group Comparisons" (2023) by Alexander Öttl, Mette Asmild, and Daniel Gulde.
+#' 
+#' @author Alexander Öttl
+#' @author Daniel Gulde
 #'
 #' @param X Vector, matrix or dataframe with DMUs as rows and inputs as columns
 #' @param Y Vecotr, matrix or dataframe with DMUs as rows and outputs as columns

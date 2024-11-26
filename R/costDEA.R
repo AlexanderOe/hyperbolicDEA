@@ -1,7 +1,10 @@
 #' @title Cost DEA model
+#' 
 #' @description Cost DEA model optimizing the input allocation with given prices.
 #' It returns the estimated lambdas as well as the optimal values for inputs and a cost efficiency score
 #' that is the ratio of optimal costs over observed costs.
+#' 
+#' @author Alexander Öttl
 #' 
 #' @seealso [Benchmarking::cost.opt] for a similar function
 #'

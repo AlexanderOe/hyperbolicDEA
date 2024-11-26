@@ -40,3 +40,6 @@ cost_eff_input <- costDEA(X,Y,pX)
 \seealso{
 [Benchmarking::cost.opt] for a similar function
 }
+\author{
+Alexander Öttl
+}

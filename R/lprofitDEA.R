@@ -4,6 +4,8 @@
 #' The linear profit estimation does not account for scale differences and also has issues
 #' with negative profits. Therefore, it is recommended to use the non-linear profit model.
 #' 
+#' @author Alexander Öttl
+#' 
 #' @seealso [Benchmarking::profit.opt] for a similar function
 #'
 #' @param X Vector, matrix or dataframe with DMUs as rows and inputs as columns

@@ -42,3 +42,6 @@ max_prof_nolin <- nlprofitDEA(X,Y,pX,pY)
 \seealso{
 `deaprofitability()` function in the Julia package BenchmarkingEconomicEfficiency.jl.
 }
+\author{
+Alexander Öttl
+}

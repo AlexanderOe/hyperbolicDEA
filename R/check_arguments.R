@@ -50,9 +50,7 @@ check_arguments <- function(X, Y, XREF = NULL, YREF = NULL,
       }
     }
   }  
-  if (anyNA(X) || anyNA(Y) || anyNA(XREF) || anyNA(YREF) || anyNA(WR) ||
-      any(is.nan(X)) || any(is.nan(Y)) || any(is.nan(XREF)) || 
-      any(is.nan(YREF)) || any(is.nan(WR))) {
+  if (anyNA(X) || anyNA(Y) || anyNA(XREF) || anyNA(YREF) || anyNA(WR)) {
     stop("The optimizer cannot handle missing or NaN values.")
   }
   

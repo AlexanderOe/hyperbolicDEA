@@ -1,7 +1,7 @@
 Type: Package
 Package: hyperbolicDEA
 Title: Hyperbolic DEA Estimation
-Version: 1.0.0
+Version: 1.0.2
 Authors@R: c(
     person("Alexander", "Öttl", , "alexoettl34@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-0734-4135")),

@@ -5,6 +5,8 @@
 #' The function returns efficiency scores and adjusted lambdas according to the imposed weight restrictions and slack estimation. Additionally, 
 #' mus are returned if weight restrictions are imposed that highlight binding restrictions for DMUs and the absolute slack values 
 #' if slack-based estimation is applied.
+#' 
+#' @author Alexander Öttl
 #'
 #' @param X Vector, matrix or dataframe with DMUs as rows and inputs as columns
 #' @param Y Vector, matrix or dataframe with DMUs as rows and outputs as columns
@@ -17,7 +19,11 @@
 #' @param YREF Vector, matrix or dataframe with firms defining the technology as rows and outputs as columns
 #' @param SUPEREFF Boolean variable indicating whether super-efficiencies shall be estimated
 #' @param SLACK Boolean variable indicating whether slack-based estimation should be applied
-#' @param COST Boolean variable indicating whether efficiency is estimated using trade-off weight restrictions. Therefore mus can be positive and negative when set to TRUE
+#' @param ECONOMIC Boolean variable indicating whether economic efficiency (cost or revenue) is estimated using trade-off weight restrictions. 
+#' Therefore mus can be positive and negative when set to TRUE and you have a multi-stage optimization where
+#' the first stage is the efficiency estimation and the second stage is the minimization of the mus. You have to
+#' use single trade-off, hence a 1 to 1 substitution of either inputs or outputs given by the focus on
+#' either cost or revenue efficiency. The data must be value data. 
 #'
 #' @return A list object containing the following information:
 #' \item{eff}{Are the estimated efficiency scores for the DMUs under observation stored 
@@ -59,7 +65,7 @@
 
 wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
                  XREF = NULL, YREF = NULL, SUPEREFF = FALSE, SLACK = FALSE,
-                 COST = FALSE) {
+                 ECONOMIC = FALSE) {
   
   # Check arguments given by user 
   check_arguments(X = X, Y = Y, ORIENTATION = ORIENTATION, RTS = RTS, 
@@ -131,9 +137,9 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     
     # Change to maximization problem
     if (ORIENTATION == "in") {
-      lp.control(dea_model, basis.crash="leastdegenerate", sense="min")
+      lp.control(dea_model, sense="min")
     } else {
-      lp.control(dea_model, basis.crash="leastdegenerate", sense="max")
+      lp.control(dea_model, sense="max")
     }  
     
     # Set the coefficients of the linear programming problem (frontier)
@@ -158,7 +164,7 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     set.constr.type(dea_model, c(rep(">=", ncol(Y)), rep("<=", ncol(X))))
     
     # Set the lower bounds of the decision variables
-    if (COST) {
+    if (ECONOMIC) {
       set.bounds(dea_model, lower = c(rep(0,nrow(XREF)),
                                       rep(-Inf, nrow(WR)), 0))
     } else {
@@ -199,46 +205,58 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
     # Get the optimal solution and store results in a data frame
     variables <- get.variables(dea_model)
     
+    # Estimate and store the mus
     if (!is.null(WR)){
-      
-      # Here we have a Multi-Objective Optimization as we try
-      # to keep the mu's as small as possible particularly relevant 
-      # for cost - efficiency analysis to obtain optimal quantities
-      if (COST) {
+      if (ECONOMIC) {
+        # Here we have a Multi-Objective Optimization as we try
+        # to keep the  absolute values of mu's as small as possible relevant for
+        # cost- and revenue efficiency analysis to obtain optimal quantities.
+        # First we set the efficiency as fixed from the previous optimization
         add.constraint(dea_model, c(rep(0,ncol(in_out_data)),1), "=", variables[(ncol(in_out_data)+1)])
-        # to minimize absolute values we multiply with -1 if mus are negative
-        # which we know from the previous optimization
+        
+        # Add auxiliary variables for each mu and two constraints to estimate
+        # absolute values of mu's (see https://lpsolve.sourceforge.net/5.5/absolute.htm)
         for (j in 1:nrow(WR)) {
           # Add one auxiliary variable y_j for each mu_j
-          add.column(dea_model, rep(0, nrow(dea_model)))  # New column for y_j
+          add.column(dea_model, rep(0, nrow(dea_model)))
         }
-        
         for (j in 1:nrow(WR)) {
-          # Constraint 1: y_j >= mu_j
+          # Constraint 1: mu_j + y_j >= 0
           # Add a row if needed and set coefficients
           add.constraint(dea_model, c(1, 1), 
                          indices = c((nrow(XREF) + j), (ncol(in_out_data)+ 1 + j)), type = ">=", rhs = 0)
           
-          # Constraint 2: y_j >= -mu_j
+          # Constraint 2: -mu_j + y_j >= 0
           add.constraint(dea_model, c(-1, 1), 
                          indices = c((nrow(XREF) + j), (ncol(in_out_data)+ 1 + j)), type = ">=", rhs = 0)
         }
-        
-        set.objfn(dea_model, c(rep(0,ncol(in_out_data)), 
-                               0,
-                               rep(1, nrow(WR))))
+        # Set objective function to minimize the sum of all auxiliary variables
+        # with negative to adjust for maximization problem in output orientation
+        if (ORIENTATION == "in") {
+          set.objfn(dea_model, c(rep(0,ncol(in_out_data)), 0,
+                                 rep(1, nrow(WR))))
+        } else {
+          set.objfn(dea_model, c(rep(0,ncol(in_out_data)), 0,
+                                 rep(-1, nrow(WR))))
+        }
+        # Solve second stage optimization
         solve(dea_model)
       }
+      # Store the mu's
       variables <- get.variables(dea_model)
       mu <- rbind(mu, variables[(nrow(XREF)+1):(nrow(XREF)+nrow(WR))])
     } else {
       mu <- NULL
     }
+    
+    # Store the efficiency score
     if (ORIENTATION == "in") {
       eff <- c(eff, variables[(ncol(in_out_data)+1)])
     } else {
       eff <- c(eff, 1/variables[(ncol(in_out_data)+1)])
     }
+    
+    # Store the lambdas
     lambdas <- rbind(lambdas, variables[1:nrow(XREF)])
   }
   
@@ -254,7 +272,6 @@ wrDEA <- function(X, Y, ORIENTATION = "out", RTS = "vrs", WR = NULL,
   } else {
     slack_results <- NULL
   }
-  
   
   # Add column names
   colnames(lambdas) <- c(paste("L",1:nrow(XREF),sep=""))

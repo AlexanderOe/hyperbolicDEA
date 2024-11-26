@@ -92,3 +92,8 @@ hyperbolicDEA(X,Y,RTS="vrs", WR = WR)
 hyperbolicDEA(X[1],Y[1],RTS="vrs", XREF = X, YREF = Y, WR = WR, ALPHA = 0.1, SLACK = TRUE)
 
 }
+\author{
+Alexander Öttl
+
+Daniel Gulde
+}

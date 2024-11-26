@@ -4,6 +4,8 @@
 #' and a profit efficiency score. The profit efficiency score is calculated as the square root of the ratio of the 
 #' observed revenue-cost ratio to the optimal revenue-cost ratio. 
 #' 
+#' @author Alexander Öttl
+#' 
 #' @seealso `deaprofitability()` function in the Julia package BenchmarkingEconomicEfficiency.jl.
 #'
 #' @param X Vector, matrix or dataframe with DMUs as rows and inputs as columns.

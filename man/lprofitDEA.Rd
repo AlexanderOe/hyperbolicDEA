@@ -44,3 +44,6 @@ max_prof_lin<- lprofitDEA(X,Y,pX,pY)
 \seealso{
 [Benchmarking::profit.opt] for a similar function
 }
+\author{
+Alexander Öttl
+}

@@ -332,11 +332,31 @@ test_that("Cost efficiency with weight restrictions", {
   # Calculate Cost efficiency with the classical approach
   classic_cost <- costDEA(X, Y, W)
   
+  # Calculate cost efficiency with trade-off weight restrictions
   WR <- matrix(c(0,1,-1), nrow = 1, byrow = T)
   
-  cost_est <- wrDEA(X*W, Y, ORIENTATION = "in", RTS = "crs", WR = WR, COST = T)
+  cost_est <- wrDEA(X*W, Y, ORIENTATION = "in", RTS = "crs", 
+                    WR = WR, ECONOMIC = TRUE)
   
   expect_equal(classic_cost$cost_eff, cost_est$eff)
-  print(cost_est$lambdas)
+  
+  # From Visual analysis we know the optimal quantities: 
+  x1 <- c(2, 1.5, 2, 1.5, 1.5, 1.786)
+  x2 <- c(1, 2, 1, 2, 2, 1.429)
+  
+  # The estimated quantities: 
+  # Optimal quantities
+  # Multiply the lambdas with the respective input quantities and aggregate
+  opt_quantities <- c()
+  for (i in 1:nrow(X)){
+    opt_quantity <- rep(0, ncol(X))
+    for (j in 1:nrow(X)){
+      opt_quantity <- opt_quantity + (cost_est$lambdas[i,j]*X[j,])
+    }
+    opt_quantities <- rbind(opt_quantities, opt_quantity)
+  }
+  
+  expect_equal(all.equal(as.matrix(round(opt_quantities, 3)), 
+                         cbind(x1, x2), check.attributes = FALSE), TRUE)
   
 })
